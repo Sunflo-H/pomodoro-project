@@ -1,0 +1,178 @@
+:root {
+  --background1 : #D95550;
+  --background2 : #e07470;
+  --background3 : #541c1f;
+  --background4 : #0000001A;
+  --font-color1 : #FFFFFF;
+  --font-color2 : #FFFFFFB3;
+}
+/* 공용 */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  background-color: var(--background1);
+  color: var(--font-color1);  
+  font-family: 'Noto Sans KR', sans-serif;
+  overflow: visible;
+}
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.container{
+  display: flex;
+}
+
+/*  */
+.wrap {
+  max-width: 40%;
+  margin: auto;
+  /* border: 1px solid black; */
+}
+
+header {
+  border-bottom: 1px solid var(--background4);
+  max-width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+header > .container > div {
+  background-color: var(--background2);
+  border-radius: 5px;
+  padding:8px 15px;
+  margin-left: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+main {
+  width: 80%;
+  margin: 2rem auto;
+}
+.current-status-container {
+  width: 100%;
+  display: flex;
+  background-color: var(--background2);
+  justify-content: space-around;
+  border-radius: 5px;
+  text-align: center;
+  padding: 10px 0;
+}
+.current-status-container span {
+  font-size: 0.8rem;
+  color: var(--font-color2);
+}
+.timer-container {
+  width: 100%;
+  margin-top: 30px;
+  background-color: var(--background2);
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px 0;
+}
+.timer-container > p {
+  font-size: 7rem;
+  font-weight: bold;
+}
+.timer-container > button {
+  width: 200px;
+  height: 50px;
+  color: var(--background1);
+  background-color: white;
+  cursor: pointer;
+  box-shadow: rgb(235 235 235) 0px 6px 0px;
+  border: none;
+  border-radius: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.task-container {
+  width: 100%;
+  /* background-color: red; */
+}
+.task-container > .container {
+  width: 100%;
+  background-color: #eee;
+  border-radius: 3px;
+  padding: 5px 10px;
+}
+.task-container > .container > i {
+  color: var(--background4);
+  margin-right: 3px;
+  cursor: pointer;
+}
+.task-container > .container > i:first-child {
+  color: var(--background1);
+  
+}
+.task-container > .container > i:last-child {
+  margin: 0px 5px;
+}
+.task-container > .container > input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background-color: #eee;
+  margin-left: 10px;
+  color: gray;
+  font-size: 14px;
+}
+.task-container > span {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+.task-container > ul {
+  width: 100%;
+  list-style: none;
+  /* background-color: red; */
+}
+
+.task-container > ul > li {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  background-color: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  color: var(--background1);
+  font-weight: bold;
+}
+.task-container > ul > li > .container{
+  flex: 1;
+  align-items: center;
+
+}
+.task-container > ul > li > .container > span{
+  display: block;
+  white-space: nowrap;
+}
+.task-container > ul > li > div > i{
+  cursor: pointer;
+  font-size: 14px;
+}
+.task-container button {
+  width: 20px;
+  cursor: pointer;
+  color: var(--background4);
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid var(--background4);
+  border-radius: 5px;
+  margin-left: 10px;
+}
+/* 트랜지션 필요한 태그들 */
+/* 
+상단 report 등등
+start 버튼
+*/
