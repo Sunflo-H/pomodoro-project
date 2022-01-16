@@ -29,6 +29,35 @@ body::-webkit-scrollbar {
   display: flex;
 }
 
+.hidden {
+  display: none;
+}
+
+.opa-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stop-dragging {
+  -ms-user-select: none; 
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* 도형 */
+.triangle {
+  width: 0px;
+  height: 0px;
+  border-bottom: calc( 8px * 1.732 ) solid var(--background2);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+
+  position: absolute;
+  left: 50%;
+  top: -40%;
+}
+
 /*  */
 .wrap {
   max-width: 40%;
@@ -99,6 +128,7 @@ main {
 }
 .task-container {
   width: 100%;
+  position: relative;
   /* background-color: red; */
 }
 .task-container > .container {
@@ -127,6 +157,26 @@ main {
   margin-left: 10px;
   color: gray;
   font-size: 14px;
+}
+.task-container > .stopwatch-fast-setting {
+  position:absolute;
+  background-color: var(--background2);
+  width: 100px;
+  padding: 2px 5px;
+  left: 90%;
+  top: 30%;
+  border-radius: 5px;
+  transform: translate(-25%,0%);
+  transition: opacity, 0.3s;
+}
+.task-container > .stopwatch-fast-setting > span {
+  width: 18px;
+  display: inline-block;
+  margin-right: 10px;
+}
+.task-container > .stopwatch-fast-setting > .btn-swfs-plus,
+.task-container > .stopwatch-fast-setting > .btn-swfs-minus {
+  cursor: pointer;
 }
 .task-container > span {
   display: block;
@@ -182,3 +232,4 @@ main {
 상단 report 등등
 start 버튼
 */
+
