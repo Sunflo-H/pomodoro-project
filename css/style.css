@@ -29,11 +29,11 @@ body::-webkit-scrollbar {
   display: flex;
 }
 
-.hidden {
+.hide {
   display: none;
 }
 
-.opa-hidden {
+.opa-hide {
   opacity: 0;
   pointer-events: none;
 }
@@ -164,7 +164,7 @@ main {
   width: 100px;
   padding: 2px 5px;
   left: 90%;
-  top: 30%;
+  top: 30px;
   border-radius: 5px;
   transform: translate(-25%,0%);
   transition: opacity, 0.3s;
