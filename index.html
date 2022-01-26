@@ -15,14 +15,15 @@
     <div class="wrap">
         <header>
             <h2><i class="fas fa-check-circle"></i> Pomodoro</i></h2>
-            <div class="container">
+            <div class="flex-container">
                 <div><i class="fas fa-poll"></i> Report</div>
                 <div><i class="fas fa-cog"></i> Setting</div>
                 <div><i class="fas fa-user-circle"></i> Login</div>
             </div>
         </header>
         <main>
-            <div class="current-status-container">
+            <!-- 통계 : 시간, 작업수  -->
+            <div class="statistics-container">
                 <div>
                     <h1>0</h1>
                     <span>예정시간(h)</span>
@@ -41,12 +42,12 @@
                 </div>
             </div>
             <div class="timer-container">
-                <h2 id="title">현재 Task 이름</h2>
+                <h2 id="current-task-name">현재 Task 이름</h2>
                 <p id="time">25:00</p>
-                <button id="btn-start">START</button>
+                <button id="btn-timer-start">START</button>
             </div>
             <div class="task-container">
-                <div class="container">
+                <div class="flex-container">
                     <i class="fas fa-plus" id="btn-add-task"></i>
                     <input type="text" id="input-task" placeholder="할 일에 작업 추가하기, [엔터키]를 눌러 저장합니다.">
                     <i class="fas fa-stopwatch" data-index="0"></i>
@@ -54,22 +55,22 @@
                     <i class="fas fa-stopwatch" data-index="2"></i>
                     <i class="fas fa-stopwatch" data-index="3"></i>
                     <i class="fas fa-stopwatch" data-index="4"></i>
-                    <i class="fas fa-chevron-right btn-stopwatch-fast-setting"></i>
+                    <i class="fas fa-chevron-right stopwatch-mini-setting-open-btn"></i>
                 </div>
                 
-                <div class="stopwatch-fast-setting opa-hide stop-dragging ">
+                <div class="stopwatch-mini-setting opa-hide stop-dragging ">
                     <div class="triangle"></div>
                     <i class="fas fa-stopwatch"></i>
-                    <span></span>
-                    <i class="fas fa-plus-circle btn-swfs-plus"></i>
-                    <i class="fas fa-minus-circle btn-swfs-minus"></i>
+                    <span class="count"></span>
+                    <i class="fas fa-plus-circle stopwatch-count-plus"></i>
+                    <i class="fas fa-minus-circle stopwatch-count-minus"></i>
                 </div>
-                <span>T A S K</span>
+                <span class="title">T A S K</span>
                 <ul>
                     <li >
-                        <div class="container">
+                        <div class="flex-container">
                             <i class="fas fa-check-circle"></i>
-                            <span class="task">할 일 할 일</span>
+                            <span class="task-name">할 일 할 일</span>
                         </div>
                         <div>
                             <span>0/1</span>

@@ -3,7 +3,7 @@ const RED = "var(--background1)";
 const GRAY = "var(--background4)";
 // time
 const time = document.querySelector("#time");
-const btnStart = document.querySelector('#btn-start');
+const timerStartBtn = document.querySelector('#btn-timer-start');
 
 // !!! task 등록할때 스탑워치를 빠른 설정하고 등록했다면 스탑워치카운트는 다시 0이 되야하니까
 // 두 기능은 하나의 파일에 넣자
@@ -11,22 +11,18 @@ const btnStart = document.querySelector('#btn-start');
 const btnAddTask = document.querySelector('#btn-add-task');
 const inputTask = document.querySelector('#input-task');
 const taskListContainer = document.querySelector('.task-container > ul');
-const title = document.querySelector('#title');
+const currentTaskName = document.querySelector('#current-task-name');
 // stopwatch icon setting
-const btnStopwatch = document.querySelectorAll('.task-container > .container > .fa-stopwatch');
-// stopwatch fast setting
-const stopwatchFastSetting = document.querySelector('.stopwatch-fast-setting');
-const btnStopwatchFastSetting = document.querySelector('.btn-stopwatch-fast-setting');
-const stopwatchCount = document.querySelector('.stopwatch-fast-setting > span');
-const btnSwfsPlus = document.querySelector('.btn-swfs-plus');
-const btnSwfsMinus = document.querySelector('.btn-swfs-minus');
-
-
-let btnComplete;
-let task;
+const stopwatchIcon = document.querySelectorAll('.task-container > .flex-container > .fa-stopwatch');
+// stopwatch mini setting
+const stopwatchMiniSetting = document.querySelector('.stopwatch-mini-setting');
+const stopwatchMiniSettingOpenBtn = document.querySelector('.stopwatch-mini-setting-open-btn');
+const stopwatchCount = document.querySelector('.stopwatch-mini-setting > .count');
+const stopwatchCountPlus = document.querySelector('.stopwatch-count-plus');
+const stopwatchCountMinus = document.querySelector('.stopwatch-count-minus');
 
 let startState = false;
-let min = 25;
+let min = 1;
 let sec = '00';
 let timeInterval;
 let pomoState = false;
@@ -34,14 +30,12 @@ let pomoState = false;
 
 let stopwatchCountNumber ;
 
-let stopwatchFastSettingState = false;
-
 init();
 
 function init(){
     setStopwatchCount(0);
 }
-// 시간을 흐르게 하는 timer 함수
+
 function timer(){
     return setInterval(function(){
         if(sec==="00"){
@@ -61,7 +55,7 @@ function setStopwatchCount(count){
         stopwatchCountNumber++;
         if(stopwatchCountNumber<=5){
             for(let i=0;i<stopwatchCountNumber;i++){
-                btnStopwatch[i].style.color = RED;
+                stopwatchIcon[i].style.color = RED;
             }
         }
         stopwatchCount.innerText = stopwatchCountNumber;
@@ -69,12 +63,12 @@ function setStopwatchCount(count){
         if(stopwatchCountNumber !== 0){
             stopwatchCountNumber--;
             if(stopwatchCountNumber<=4){
-               btnStopwatch[stopwatchCountNumber].style.color=GRAY;
+                stopwatchIcon[stopwatchCountNumber].style.color=GRAY;
             }
             stopwatchCount.innerText = stopwatchCountNumber;
         }
     } else if(count ==="reset"){
-        btnStopwatch.forEach(btn => btn.style.color=GRAY);
+        stopwatchIcon.forEach(btn => btn.style.color=GRAY);
         stopwatchCountNumber = 0;
         stopwatchCount.innerText = stopwatchCountNumber;
     } 
@@ -85,8 +79,8 @@ function setStopwatchCount(count){
 }
 
 // 이벤트 리스너 목록
-// 시작 버튼 클릭 이벤트
-btnStart.addEventListener('click',e=>{
+
+timerStartBtn.addEventListener('click',e=>{
     if(!startState){
         startState = true;
         timeInterval = timer();
@@ -98,18 +92,18 @@ btnStart.addEventListener('click',e=>{
 });
 
 // 시작 버튼 클릭시 'innerText = start->stop' & css 변화 이벤트
-btnStart.addEventListener('mousedown',e=>{
-    btnStart.style.boxShadow="none";
-    btnStart.style.top="6px";
+timerStartBtn.addEventListener('mousedown',e=>{
+    timerStartBtn.style.boxShadow="none";
+    timerStartBtn.style.top="6px";
 });
-btnStart.addEventListener('mouseup',e=>{
-    btnStart.style.boxShadow="rgb(235 235 235) 0px 6px 0px";
-    btnStart.style.top="0px";
+timerStartBtn.addEventListener('mouseup',e=>{
+    timerStartBtn.style.boxShadow="rgb(235 235 235) 0px 6px 0px";
+    timerStartBtn.style.top="0px";
     if(!startState){
-        btnStart.innerText="STOP"
+        timerStartBtn.innerText="STOP"
     } 
     else {
-        btnStart.innerText="START"
+        timerStartBtn.innerText="START"
     }
 });
 
@@ -117,9 +111,9 @@ btnStart.addEventListener('mouseup',e=>{
 // +버튼 클릭시 할 일 목록을 추가하는 이벤트
 btnAddTask.addEventListener('click', e=>{
     let html = `<li>
-                    <div class="container">
+                    <div class="flex-container">
                         <i class="fas fa-check-circle"></i>
-                        <span class="task">${inputTask.value}</span>
+                        <span class="task-name">${inputTask.value}</span>
                     </div>
                     <div>
                         <span>0/${stopwatchCountNumber}</span>
@@ -131,8 +125,8 @@ btnAddTask.addEventListener('click', e=>{
     inputTask.value = "";
     setStopwatchCount("reset");
 
-    btnComplete = taskListContainer.querySelectorAll('.fa-check-circle');
-    task = taskListContainer.querySelectorAll('.task');
+    let completeBtn = taskListContainer.querySelectorAll('.fa-check-circle');
+    let task = taskListContainer.querySelectorAll('.task');
     
     
     
@@ -145,10 +139,10 @@ btnAddTask.addEventListener('click', e=>{
     task.forEach(task=>{
         task.addEventListener('click',e=>{
             console.log(task.innerText);
-            title.innerText=task.innerText;
+            currentTaskName.innerText=task.innerText;
         })
     })
-    btnComplete.forEach((btn,i)=>{
+    completeBtn.forEach((btn,i)=>{
         btn.addEventListener('click',e=>{
             // 누르면 완료
             // 현재 목록에서 사라지고
@@ -160,8 +154,8 @@ btnAddTask.addEventListener('click', e=>{
     })
 });
 
-// 인풋의 stopwatch 버튼을 누르면 발생하는 이벤트
-btnStopwatch.forEach(btn=>{
+// 인풋의 stopwatch 아이콘을 누르면 발생하는 이벤트
+stopwatchIcon.forEach(btn=>{
     btn.addEventListener('click',e=>{
         let current = e.target;
         let next = current.nextElementSibling;
@@ -225,15 +219,9 @@ btnStopwatch.forEach(btn=>{
     });
 });
 
-// stopwatch 버튼이 5개 위로 필요할때 stopwatch-fast-setting 하는 이벤트
-btnStopwatchFastSetting.addEventListener('click',e=>{
-    stopwatchFastSetting.classList.toggle('opa-hide');
-    if(!stopwatchFastSettingState){
-        console.log(stopwatchFastSettingState);
-        stopwatchFastSettingState=true;
-    } else{
-        stopwatchFastSettingState=false;
-    }
+// stopwatch 버튼이 5개 위로 필요할때 stopwatch-mini-setting 하는 이벤트
+stopwatchMiniSettingOpenBtn.addEventListener('click',e=>{
+    stopwatchMiniSetting.classList.toggle('opa-hide');
 });
-btnSwfsPlus.addEventListener('click',e=>{setStopwatchCount("plus");});
-btnSwfsMinus.addEventListener('click',e=>{setStopwatchCount("minus");});
+stopwatchCountPlus.addEventListener('click',e=>{setStopwatchCount("plus");});
+stopwatchCountMinus.addEventListener('click',e=>{setStopwatchCount("minus");});
