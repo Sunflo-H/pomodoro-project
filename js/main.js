@@ -1,6 +1,15 @@
 'use strict'
+//해야 할 일
+
+//report , setting, login기능 만들기
+//백엔드 필요없는거부터 해서 
+//setting 먼저
+
+
+
 const RED = "var(--background1)";
 const GRAY = "var(--background4)";
+const HOUR = 60;
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -18,19 +27,38 @@ const stopwatchIcon = document.querySelectorAll('.task-container > .flex-contain
 const stopwatchMiniSetting = document.querySelector('.stopwatch-mini-setting');
 const stopwatchMiniSettingOpenBtn = document.querySelector('.stopwatch-mini-setting-open-btn');
 const stopwatchCount = document.querySelector('.stopwatch-mini-setting > .count');
-const stopwatchCountPlus = document.querySelector('.stopwatch-count-plus');
-const stopwatchCountMinus = document.querySelector('.stopwatch-count-minus');
+const stopwatchCountPlusBtn = document.querySelector('.stopwatch-count-plus');
+const stopwatchCountMinusBtn = document.querySelector('.stopwatch-count-minus');
+// statistics (통계)
+const statistics = document.querySelector('.statistics-container');
+const estimatedTime = statistics.querySelector('div:nth-child(1)>h1'); //예정시간
+const taskToComplete = statistics.querySelector('div:nth-child(2)>h1'); //완료할 작업 
+const completedTime = statistics.querySelector('div:nth-child(3)>h1'); //완료한 시간
+const completedTask = statistics.querySelector('div:nth-child(4)>h1'); //완료한 작업
 
-let startState = false;
-let min = 1;
-let sec = '00';
+let run = false;
+let originalMin = 1;
+let min = originalMin;
+let sec = "00";
 let timeInterval;
 let pomoState = false;
 
+let total = {
+    estimatedTime : 0,
+    taskToComplete : 0,
+    completedTime : 0,
+    completedTask : 0
+}
 
-let stopwatchCountNumber ;
+let count = {
+    task : 0,
+    stopwatch : 0
+}
 
-init();
+let runTimes = [
+    {current : 0, max : 1}
+];
+
 
 function init(){
     setStopwatchCount(0);
@@ -38,55 +66,104 @@ function init(){
 
 function timer(){
     return setInterval(function(){
-        if(sec==="00"){
-            sec = 59;
+        if(sec==="00"){ // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
+            sec = 2; // 59
             min--;
-        } else if (sec === 1){
+            if(String(min).length===1){
+                min = "0"+min;
+            }
+        } else if (sec == "01"){ //초가 "01"이면 1초뒤에는 00 ,만약 min이 "00"이었다면 타이머 종료
             sec = "00";
+            if(min == "00"){
+                
+                complete(currentTaskName.innerText);
+                min = 1;
+                // 완료한 task 찾아서
+                // 통계에서 완료한시간,완료한 작업 증가시켜주고요
+                // task에서 0->1로 늘려주세요 
+            }
         } else {
             sec--;
+            if(String(sec).length===1){
+                sec = "0"+sec;
+            }
         }
         time.innerText=`${min} : ${sec}`;
     },1000)
 }
+function complete(taskName){
+    
+    let taskList = taskListContainer.querySelectorAll('li');
+    let taskListArr = [...taskList];
+    let index=0;
+    let foundTask = taskListArr.find((task,i)=>{
+        let findTaskName = task.querySelector('.task-name');
+        index = i;
+        return taskName === findTaskName.innerText;
+    });
+    let foundTaskRunTimes = foundTask.querySelector('.run-times');
 
-function setStopwatchCount(count){
-    if(count ==="plus"){ 
-        stopwatchCountNumber++;
-        if(stopwatchCountNumber<=5){
-            for(let i=0;i<stopwatchCountNumber;i++){
+    runTimes[index].current++;
+
+    //통계에서 완료한 시간, 완료한 작업은 더해주고
+    // 예정시간, 완료할 작업은 더한만큼 빼준다.
+    total.completedTime+=((total.completedTime+originalMin)/HOUR).toFixed(1);
+    total.completedTask++;
+    total.estimatedTime -= Number(total.completedTime).toFixed(1);
+    total.taskToComplete--;
+    
+    completedTime.innerText = Number(total.completedTime).toFixed(1);
+    completedTask.innerText = total.completedTask;
+    estimatedTime.innerText = Number(total.estimatedTime).toFixed(1);
+    taskToComplete = total.taskToComplete;
+    
+
+    foundTaskRunTimes.innerText = `${runTimes[index].current}/${runTimes[index].max}`
+
+    run=false;
+    clearInterval(timeInterval);
+    timerStartBtn.innerText="START";
+}
+
+function setStopwatchCount(param){
+    if(param ==="plus"){ 
+        count.stopwatch++;
+        if(count.stopwatch<=5){
+            for(let i=0;i<count.stopwatch;i++){
                 stopwatchIcon[i].style.color = RED;
             }
         }
-        stopwatchCount.innerText = stopwatchCountNumber;
-    } else if(count==="minus"){
-        if(stopwatchCountNumber !== 0){
-            stopwatchCountNumber--;
-            if(stopwatchCountNumber<=4){
-                stopwatchIcon[stopwatchCountNumber].style.color=GRAY;
+        stopwatchCount.innerText = count.stopwatch;
+    } else if(param ==="minus"){
+        if(count.stopwatch !== 0){
+            count.stopwatch--;
+            if(count.stopwatch<=4){
+                stopwatchIcon[count.stopwatch].style.color=GRAY;
             }
-            stopwatchCount.innerText = stopwatchCountNumber;
+            stopwatchCount.innerText = count.stopwatch;
         }
-    } else if(count ==="reset"){
+    } else if(param ==="reset"){
         stopwatchIcon.forEach(btn => btn.style.color=GRAY);
-        stopwatchCountNumber = 0;
-        stopwatchCount.innerText = stopwatchCountNumber;
+        count.stopwatch = 0;
+        stopwatchCount.innerText = count.stopwatch;
     } 
     else {
-        stopwatchCountNumber = count;
-        stopwatchCount.innerText = stopwatchCountNumber;
+        count.stopwatch = param;
+        stopwatchCount.innerText = count.stopwatch;
     }
 }
 
-// 이벤트 리스너 목록
 
+
+// @@@@이벤트 리스너 목록
+// 타이머 시작, 종료에 관함 이벤트들
 timerStartBtn.addEventListener('click',e=>{
-    if(!startState){
-        startState = true;
+    if(!run){
+        run = true;
         timeInterval = timer();
     } 
     else {
-        startState = false;
+        run = false;
         clearInterval(timeInterval);
     }
 });
@@ -99,7 +176,7 @@ timerStartBtn.addEventListener('mousedown',e=>{
 timerStartBtn.addEventListener('mouseup',e=>{
     timerStartBtn.style.boxShadow="rgb(235 235 235) 0px 6px 0px";
     timerStartBtn.style.top="0px";
-    if(!startState){
+    if(!run){
         timerStartBtn.innerText="STOP"
     } 
     else {
@@ -116,19 +193,29 @@ btnAddTask.addEventListener('click', e=>{
                         <span class="task-name">${inputTask.value}</span>
                     </div>
                     <div>
-                        <span>0/${stopwatchCountNumber}</span>
+                        <span class="run-times">0/${count.stopwatch}</span>
                         <button><i class="fas fa-ellipsis-v"></i></button>
                     </div>
                 </li>`
 
     taskListContainer.insertAdjacentHTML('beforeend',html);
     inputTask.value = "";
-    setStopwatchCount("reset");
-
+    
     let completeBtn = taskListContainer.querySelectorAll('.fa-check-circle');
-    let task = taskListContainer.querySelectorAll('.task');
+    let taskName = taskListContainer.querySelectorAll('.task-name');
     
+    // 예정시간 
+    total.estimatedTime += Number((count.stopwatch * min /HOUR).toFixed(1)); //소수점 한자리 반올림
+    estimatedTime.innerText = (total.estimatedTime).toFixed(1); //부동소수점때문에 한번더 반올림
+    // 완료할 작업
+    count.task++;
+    taskToComplete.innerText=count.task;
+    //완료한 시간
+
+    //완료한 작업
     
+    runTimes.push({current : 0, max : count.stopwatch});
+    setStopwatchCount("reset");
     
     /* 
      * @@해야할 것!@@
@@ -136,9 +223,8 @@ btnAddTask.addEventListener('click', e=>{
      * task 누르면 해당 task명으로 stopwatch 세팅
      */
 
-    task.forEach(task=>{
+    taskName.forEach(task=>{
         task.addEventListener('click',e=>{
-            console.log(task.innerText);
             currentTaskName.innerText=task.innerText;
         })
     })
@@ -163,14 +249,13 @@ stopwatchIcon.forEach(btn=>{
             if(current.style.color===""||current.style.color===GRAY){
                 current.style.color = RED;
                 setStopwatchCount(Number(current.dataset.index)+1);
-            } else if(current.style.color === RED&&(next.style.color===GRAY||next.style.color==="")){
+            } else if(current.style.color === RED && (next.style.color===GRAY||next.style.color==="")){
                 current.style.color = GRAY;
                 setStopwatchCount(0);
-            } else if(current.style.color ===RED
-                    &&next.style.color === RED)
+            } else if(current.style.color === RED && next.style.color === RED)
             { 
-                stopwatchCountNumber=Number(current.dataset.index)+1;
-                stopwatchCount.innerText = stopwatchCountNumber;
+                setStopwatchCount(Number(current.dataset.index)+1);
+                stopwatchCount.innerText = count.stopwatch;
                 // 5번째까지 눌려있는 상태에서 1번째꺼를 누르면 2,3,4,5 비활성화되는 반복문
                 while(next.dataset.index !==undefined){
                     current = next;
@@ -205,7 +290,7 @@ stopwatchIcon.forEach(btn=>{
                 }
             }
             if(next.style.color===RED){
-                 // 5까지 눌려있는 상태에서 3번째꺼를 누르면 4,5 비활성화되는 반복문
+                 // 5까지 눌려있는 상태에서 3을 누르면 4,5 비활성화되는 반복문
                 current=e.target;
                 setStopwatchCount(Number(current.dataset.index)+1);
                 // current.
@@ -223,5 +308,13 @@ stopwatchIcon.forEach(btn=>{
 stopwatchMiniSettingOpenBtn.addEventListener('click',e=>{
     stopwatchMiniSetting.classList.toggle('opa-hide');
 });
-stopwatchCountPlus.addEventListener('click',e=>{setStopwatchCount("plus");});
-stopwatchCountMinus.addEventListener('click',e=>{setStopwatchCount("minus");});
+stopwatchCountPlusBtn.addEventListener('click',e=>{setStopwatchCount("plus");});
+stopwatchCountMinusBtn.addEventListener('click',e=>{setStopwatchCount("minus");});
+
+
+
+
+
+
+
+init();

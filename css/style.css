@@ -177,10 +177,12 @@ main {
 .task-container > .stopwatch-mini-setting > .stopwatch-count-minus {
   cursor: pointer;
 }
-.task-container > .title {
+.task-container > span {
   display: block;
   margin-top: 10px;
   font-weight: bold;
+  border-bottom: 3px solid #eee;
+  padding-bottom: 5px;
 }
 .task-container > ul {
   width: 100%;
@@ -232,3 +234,31 @@ main {
 start 버튼
 */
 
+.modal-background {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0.4;
+}
+
+.setting {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform:translate(-12.5vw,-40vh);
+  width: 25vw;
+  height: 80vh;
+  background-color: #ffe;
+  border-radius: 10px;
+  opacity: 1;
+  color:black;
+  padding :10px;
+}
+
+.setting .head {
+  color: #aaa;
+  font-weight: bold;
+}

@@ -43,7 +43,7 @@
             </div>
             <div class="timer-container">
                 <h2 id="current-task-name">현재 Task 이름</h2>
-                <p id="time">25:00</p>
+                <p id="time">25 : 00</p>
                 <button id="btn-timer-start">START</button>
             </div>
             <div class="task-container">
@@ -65,7 +65,7 @@
                     <i class="fas fa-plus-circle stopwatch-count-plus"></i>
                     <i class="fas fa-minus-circle stopwatch-count-minus"></i>
                 </div>
-                <span class="title">T A S K</span>
+                <span >T A S K</span>
                 <ul>
                     <li >
                         <div class="flex-container">
@@ -73,14 +73,37 @@
                             <span class="task-name">할 일 할 일</span>
                         </div>
                         <div>
-                            <span>0/1</span>
+                            <span class="run-times">0/1</span>
                             <button><i class="fas fa-ellipsis-v"></i></button>
                         </div>
                     </li>
                 </ul> 
             </div>
         </main>
+        <div class="modal-background">
+        </div>
+        <div class="setting">
+            <div class="head">
+                <span>TIMER SETTING</span>
+                <span>X</span>
+            </div>
+            <div>
+                <span>Pomodoro</span>
+                <div>
+                    <p>Time</p>
+                    <span>25</span>
+                </div>
+            </div>
+            <div>
+                <span>Break Time</span>
+                <div>
+                    <p>Time</p>
+                    <span>5</span>
+                </div>
+            </div>
+        </div>
     </div>
+    <script src='https://cdn.jsdelivr.net/npm/bignumber.js@9.0.2/bignumber.min.js'></script>
     <script src="js/main.js"></script>
     
 </body>
