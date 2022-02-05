@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,9 +17,9 @@
         <header>
             <h2><i class="fas fa-check-circle"></i> Pomodoro</i></h2>
             <div class="flex-container">
-                <div><i class="fas fa-poll"></i> Report</div>
-                <div><i class="fas fa-cog"></i> Setting</div>
-                <div><i class="fas fa-user-circle"></i> Login</div>
+                <div id="report"><i class="fas fa-poll"></i> Report</div>
+                <div id="setting"><i class="fas fa-cog"></i> Setting</div>
+                <div id="login"><i class="fas fa-user-circle"></i> Login</div>
             </div>
         </header>
         <main>
@@ -80,30 +81,58 @@
                 </ul> 
             </div>
         </main>
+        
         <div class="modal-background">
         </div>
-        <div class="setting">
-            <div class="head">
-                <span>TIMER SETTING</span>
-                <span>X</span>
+        <div class="setting-container">
+            <div class="header">
+                <div class="title">POMODORO SETTING</div>
+                <div class="close"><i class="fas fa-times"></i></div>
             </div>
-            <div>
-                <span>Pomodoro</span>
-                <div>
-                    <p>Time</p>
-                    <span>25</span>
+            <div class="setting">
+                <span>Pomodoro Time </span>
+                <div class="select-container">
+                    <div class="select">
+                        <div class="selected">5분</div>
+                        <span></span>
+                        <div class="arrow-container">
+                            <div class="arrow"></div>
+                        </div>
+                    </div>
+                    <ul class="option-list hidden">
+                    </ul>
                 </div>
             </div>
-            <div>
-                <span>Break Time</span>
-                <div>
-                    <p>Time</p>
-                    <span>5</span>
+            <div class="setting">
+                <span>Break Time </span>
+                <div class="select-container">
+                    <div class="select">
+                        <div class="selected">5분</div>
+                        <span></span>
+                        <div class="arrow-container">
+                            <div class="arrow"></div>
+                        </div>
+                    </div>
+                    <ul class="option-list hidden">
+                        <li class="option-item">10</li>
+                        <li class="option-item">15</li>
+                        <li class="option-item">20</li>
+                        <li class="option-item">25</li>
+                        <li class="option-item">30</li>
+                        <li class="option-item">35</li>
+                        <li class="option-item">40</li>
+                        <li class="option-item">45</li>
+                        <li class="option-item">50</li>
+                        <li class="option-item">55</li>
+                        <li class="option-item">60</li>  
+                    </ul>
                 </div>
             </div>
         </div>
+        <footer>
+            <!-- 푸터 -->
+        </footer>
     </div>
-    <script src='https://cdn.jsdelivr.net/npm/bignumber.js@9.0.2/bignumber.min.js'></script>
     <script src="js/main.js"></script>
     
 </body>

@@ -4,12 +4,13 @@
 //report , setting, login기능 만들기
 //백엔드 필요없는거부터 해서 
 //setting 먼저
-
+//초기 시간 (이니셜 타임)을 가지고 처음에 보여지는 타이머 시간 표현해줘
 
 
 const RED = "var(--background1)";
 const GRAY = "var(--background4)";
 const HOUR = 60;
+const INITIAL_TIME = 25;
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -35,13 +36,28 @@ const estimatedTime = statistics.querySelector('div:nth-child(1)>h1'); //예정�
 const taskToComplete = statistics.querySelector('div:nth-child(2)>h1'); //완료할 작업 
 const completedTime = statistics.querySelector('div:nth-child(3)>h1'); //완료한 시간
 const completedTask = statistics.querySelector('div:nth-child(4)>h1'); //완료한 작업
+//header div
+const settingBtn = document.querySelector('#setting');
+//modal
+const modalBackground = document.querySelector('.modal-background');
+const settingContainer = document.querySelector('.setting-container');
+const closeBtn = document.querySelectorAll('.close>i');
+//modal - select box 
+const selectContainer = document.querySelectorAll('.select-container');
+const select = document.querySelectorAll('.select');
+const selected = document.querySelectorAll('.selected');
+const optionList = document.querySelectorAll('.option-list');
+const optionItem = document.querySelectorAll('.option-item');
 
 let run = false;
-let originalMin = 1;
-let min = originalMin;
+// let originalMin = 1;
+// let min = originalMin;
+let min = INITIAL_TIME;
 let sec = "00";
 let timeInterval;
 let pomoState = false;
+let optionTime;
+let initialTime;;
 
 let total = {
     estimatedTime : 0,
@@ -62,12 +78,18 @@ let runTimes = [
 
 function init(){
     setStopwatchCount(0);
+    setInitailTime(INITIAL_TIME);
+    makeSelect();
+}
+
+function setInitailTime(time){
+    initialTime = time;
 }
 
 function timer(){
     return setInterval(function(){
         if(sec==="00"){ // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
-            sec = 2; // 59
+            sec = 59; // 59
             min--;
             if(String(min).length===1){
                 min = "0"+min;
@@ -153,9 +175,70 @@ function setStopwatchCount(param){
     }
 }
 
+function makeSelect(){
+    let html;
+    optionTime=5;
+    optionList.forEach(optionList=>{
+        while(optionTime<=60){
+            html = `<li class="option-item">
+                        ${optionTime}분
+                    </li>`
+            optionList.insertAdjacentHTML('beforeend',html);
+            optionTime+=5;
+        }
+    })
+}
 
 
-// @@@@이벤트 리스너 목록
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//s이벤트 리스너 목록
+//pomodoro setting
+settingBtn.addEventListener('click',e=>{
+    modalBackground.classList.remove("hidden");
+    settingContainer.classList.remove("hidden");
+});
+modalBackground.addEventListener('click',e=>{
+    modalBackground.classList.add("hidden");
+    //조건문 : 모달중 hidden이 없는거만 hidden 주기??
+    settingContainer.classList.add("hidden");
+});
+closeBtn.forEach(btn=>{
+    btn.addEventListener('click',e=>{
+        modalBackground.classList.add("hidden");
+        e.target.parentNode.parentNode.parentNode.classList.add("hidden");
+    })
+});
+select.forEach(select=>{
+    select.addEventListener('click',e=>{
+        let optionList = select.nextElementSibling;
+        if(optionList.classList.contains("hidden")){
+            optionList.style.height="100px";
+            optionList.classList.remove('hidden');
+        } else {
+            optionList.style.height="0px";
+            optionList.classList.add('hidden');
+        }
+    });
+})
+
+optionList.forEach((optionList,index)=>{
+    optionList.addEventListener('click',e=>{
+        let optionMin;
+        switch(e.target.innerText.length){
+            case 2: optionMin = (e.target.innerText).substring(0,1);
+                    break;
+            case 3: optionMin = (e.target.innerText).substring(0,2);
+                    break;
+            case 4: optionMin = (e.target.innerText).substring(0,3);
+                    break;
+        }
+        min = optionMin;
+        time.innerText=`${min} : 00`
+        selected[index].innerText= `${min}분`
+    });
+})
+
+
 // 타이머 시작, 종료에 관함 이벤트들
 timerStartBtn.addEventListener('click',e=>{
     if(!run){
