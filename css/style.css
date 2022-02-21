@@ -18,6 +18,9 @@ body {
 body::-webkit-scrollbar {
   display: none;
 }
+* {
+  box-sizing: border-box;
+}
 /* 공용 class*/
 
 .flex-container{
@@ -26,7 +29,7 @@ body::-webkit-scrollbar {
 .hidden {
   display: none;
 }
-.opa-hide {
+.opacity-hide {
   opacity: 0;
   pointer-events: none;
 }
@@ -37,23 +40,12 @@ body::-webkit-scrollbar {
   -webkit-user-select: none;
   user-select: none;
 }
-.triangle {
-  width: 0px;
-  height: 0px;
-  border-bottom: calc( 8px * 1.732 ) solid var(--background2);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
 
-  position: absolute;
-  left: 50%;
-  top: -40%;
-}
-/*  */
-.wrap {
+/* wrapper */
+.wrapper {
   max-width: 40%;
   min-width: 40%;
   margin: auto;
-  /* border: 1px solid black; */
 }
 
 header {
@@ -74,7 +66,7 @@ header > .flex-container > div {
 }
 
 main {
-  width: 80%;
+  width: 550px;
   margin: 2rem auto;
 }
 .statistics-container {
@@ -90,6 +82,7 @@ main {
   font-size: 0.8rem;
   color: var(--font-color2);
 }
+/* timer-container */
 .timer-container {
   width: 100%;
   margin-top: 30px;
@@ -114,12 +107,11 @@ main {
   border-radius: 10px;
   font-size: 22px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin: 30px 0 20px;
 }
 .task-container {
   width: 100%;
   position: relative;
-  /* background-color: red; */
 }
 .task-container > .flex-container {
   width: 100%;
@@ -147,26 +139,41 @@ main {
   color: gray;
   font-size: 14px;
 }
-.task-container > .stopwatch-mini-setting {
+
+/* stopwatch-fast-setting */
+.task-container > .stopwatch-fast-setting {
   position:absolute;
   background-color: var(--background2);
   width: 100px;
   padding: 2px 5px;
   left: 90%;
-  top: 30px;
+  /* left: 85%; */
+  top: 35px;
   border-radius: 5px;
   transform: translate(-25%,0%);
   transition: opacity, 0.3s;
 }
-.task-container > .stopwatch-mini-setting > .count {
+.task-container > .stopwatch-fast-setting > .count {
   width: 18px;
   display: inline-block;
   margin-right: 10px;
 }
-.task-container > .stopwatch-mini-setting > .stopwatch-count-plus,
-.task-container > .stopwatch-mini-setting > .stopwatch-count-minus {
+.task-container > .stopwatch-fast-setting > .stopwatch-count-plus,
+.task-container > .stopwatch-fast-setting > .stopwatch-count-minus {
   cursor: pointer;
 }
+.triangle {
+  width: 0px;
+  height: 0px;
+  border-bottom: calc( 8px * 1.732 ) solid var(--background2);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+
+  position: absolute;
+  left: 50%;
+  top: -65%;
+}
+/* task list */
 .task-container > span {
   display: block;
   margin-top: 10px;

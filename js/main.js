@@ -24,10 +24,10 @@ const taskListContainer = document.querySelector('.task-container > ul');
 const currentTaskName = document.querySelector('#current-task-name');
 // stopwatch icon setting
 const stopwatchIcon = document.querySelectorAll('.task-container > .flex-container > .fa-stopwatch');
-// stopwatch mini setting
-const stopwatchMiniSetting = document.querySelector('.stopwatch-mini-setting');
-const stopwatchMiniSettingOpenBtn = document.querySelector('.stopwatch-mini-setting-open-btn');
-const stopwatchCount = document.querySelector('.stopwatch-mini-setting > .count');
+// stopwatch fast setting
+const stopwatchFastSetting = document.querySelector('.stopwatch-fast-setting');
+const stopwatchFastSettingOpenBtn = document.querySelector('.stopwatch-fast-setting-open-btn');
+const stopwatchCount = document.querySelector('.stopwatch-fast-setting > .count');
 const stopwatchCountPlusBtn = document.querySelector('.stopwatch-count-plus');
 const stopwatchCountMinusBtn = document.querySelector('.stopwatch-count-minus');
 // statistics (통계)
@@ -387,16 +387,12 @@ stopwatchIcon.forEach(btn=>{
     });
 });
 
-// stopwatch 버튼이 5개 위로 필요할때 stopwatch-mini-setting 하는 이벤트
-stopwatchMiniSettingOpenBtn.addEventListener('click',e=>{
-    stopwatchMiniSetting.classList.toggle('opa-hide');
+// stopwatch 버튼이 5개 위로 필요할때 stopwatch-fast-setting 하는 이벤트
+stopwatchFastSettingOpenBtn.addEventListener('click',e=>{
+    stopwatchFastSetting.classList.toggle('opacity-hide');
 });
 stopwatchCountPlusBtn.addEventListener('click',e=>{setStopwatchCount("plus");});
 stopwatchCountMinusBtn.addEventListener('click',e=>{setStopwatchCount("minus");});
-
-
-
-
 
 
 
