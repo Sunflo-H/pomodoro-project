@@ -92,6 +92,7 @@ main {
   padding: 10px 0;
 }
 .timer-container > #time {
+  margin-top: 2rem;
   font-size: 7rem;
   font-weight: bold;
 }
@@ -107,7 +108,7 @@ main {
   border-radius: 10px;
   font-size: 22px;
   font-weight: bold;
-  margin: 30px 0 20px;
+  margin: 3rem 0 2rem;
 }
 .task-container {
   width: 100%;
@@ -174,16 +175,16 @@ main {
   top: -65%;
 }
 /* task list */
-.task-container > span {
+.task-container > ul {
+  width: 100%;
+  list-style: none;
+}
+.task-container > ul > span {
   display: block;
   margin-top: 10px;
   font-weight: bold;
   border-bottom: 3px solid #eee;
   padding-bottom: 5px;
-}
-.task-container > ul {
-  width: 100%;
-  list-style: none;
 }
 
 .task-container > ul > li {

@@ -57,6 +57,7 @@ let sec = "00";
 let timeInterval;
 let pomoState = false;
 let optionTime;
+
 let initialTime;;
 
 let total = {
@@ -66,14 +67,15 @@ let total = {
     completedTask : 0
 }
 
+//count.task는 showOptionList랑 연계되는건데 boolean으로 바꿔도 될듯
+//count.task는 total.taskToComplete와 동일하니까 바꿔주자
+let taskListState = false;
 let count = {
-    task : 0,
+    // task : 0,
     stopwatch : 0
 }
 
-let runTimes = [
-    {current : 0, max : 1}
-];
+let runTimes = [];
 
 
 function init(){
@@ -89,7 +91,7 @@ function setInitailTime(time){
 function timer(){
     return setInterval(function(){
         if(sec==="00"){ // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
-            sec = 59; // 59
+            sec = 2; // 59
             min--;
             if(String(min).length===1){
                 min = "0"+min;
@@ -98,8 +100,8 @@ function timer(){
             sec = "00";
             if(min == "00"){
                 
-                complete(currentTaskName.innerText);
-                min = 1;
+                completePomodoro(currentTaskName.innerText);
+                min = optionTime;
                 // 완료한 task 찾아서
                 // 통계에서 완료한시간,완료한 작업 증가시켜주고요
                 // task에서 0->1로 늘려주세요 
@@ -113,10 +115,10 @@ function timer(){
         time.innerText=`${min} : ${sec}`;
     },1000)
 }
-function complete(taskName){
-    
+function completePomodoro(taskName){
     let taskList = taskListContainer.querySelectorAll('li');
     let taskListArr = [...taskList];
+    console.log(taskListArr);
     let index=0;
     let foundTask = taskListArr.find((task,i)=>{
         let findTaskName = task.querySelector('.task-name');
@@ -129,15 +131,21 @@ function complete(taskName){
 
     //통계에서 완료한 시간, 완료한 작업은 더해주고
     // 예정시간, 완료할 작업은 더한만큼 빼준다.
-    total.completedTime+=((total.completedTime+originalMin)/HOUR).toFixed(1);
-    total.completedTask++;
+    // 예정시간
     total.estimatedTime -= Number(total.completedTime).toFixed(1);
-    total.taskToComplete--;
-    
-    completedTime.innerText = Number(total.completedTime).toFixed(1);
-    completedTask.innerText = total.completedTask;
     estimatedTime.innerText = Number(total.estimatedTime).toFixed(1);
-    taskToComplete = total.taskToComplete;
+
+    // 완료할 작업
+    total.taskToComplete--;
+    taskToComplete.innerText = total.taskToComplete;
+
+    // 완료한 시간
+    total.completedTime+=((total.completedTime+min)/HOUR).toFixed(1);
+    completedTime.innerText = Number(total.completedTime).toFixed(1);
+
+    // 완료한 작업
+    total.completedTask++;
+    completedTask.innerText = total.completedTask;
     
 
     foundTaskRunTimes.innerText = `${runTimes[index].current}/${runTimes[index].max}`
@@ -146,7 +154,9 @@ function complete(taskName){
     clearInterval(timeInterval);
     timerStartBtn.innerText="START";
 }
+function completeTask(){
 
+}
 function setStopwatchCount(param){
     if(param ==="plus"){ 
         count.stopwatch++;
@@ -177,7 +187,7 @@ function setStopwatchCount(param){
 
 function makeSelect(){
     let html;
-    optionTime=5;
+    let optionTime=5;
     optionList.forEach(optionList=>{
         while(optionTime<=60){
             html = `<li class="option-item">
@@ -189,9 +199,17 @@ function makeSelect(){
     })
 }
 
+function showTaskList(){
+    if(taskListState){
+        taskListContainer.classList.remove('hidden');
+    } else {
+        taskListContainer.classList.add('hidden');
+    }
+}
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//s이벤트 리스너 목록
+//이벤트 리스너 목록
 //pomodoro setting
 settingBtn.addEventListener('click',e=>{
     modalBackground.classList.remove("hidden");
@@ -212,7 +230,7 @@ select.forEach(select=>{
     select.addEventListener('click',e=>{
         let optionList = select.nextElementSibling;
         if(optionList.classList.contains("hidden")){
-            optionList.style.height="100px";
+            optionList.style.height="150px";
             optionList.classList.remove('hidden');
         } else {
             optionList.style.height="0px";
@@ -223,23 +241,40 @@ select.forEach(select=>{
 
 optionList.forEach((optionList,index)=>{
     optionList.addEventListener('click',e=>{
-        let optionMin;
+        // 포모도로 시간인지, 휴식 시간인지 조건 나눠야함
+        // index가 0이면 포모도로, 1이면 휴식 시간
+        
         switch(e.target.innerText.length){
-            case 2: optionMin = (e.target.innerText).substring(0,1);
+            case 1: optionTime = (e.target.innerText).substring(0,0);
                     break;
-            case 3: optionMin = (e.target.innerText).substring(0,2);
+            case 2: optionTime = (e.target.innerText).substring(0,1);
                     break;
-            case 4: optionMin = (e.target.innerText).substring(0,3);
+            case 3: optionTime = (e.target.innerText).substring(0,2);
+                    break;
+            case 4: optionTime = (e.target.innerText).substring(0,3);
                     break;
         }
-        min = optionMin;
-        time.innerText=`${min} : 00`
+        /*  <실제 코드>
+            if(index===0){
+                min = optionTime;
+                time.innerText=`${min} : 00`;
+            }
+            else { // 휴식시간
+                breakMin = optionTime;
+                breakTime = `${breakMin} : 00`;
+            }
+            </실제 코드> 
+        */
+        /* <테스트 코드> breakTime에 1분만 해서 테스트 할때 쓸꺼임*/ 
+        min = optionTime;
+        time.innerText=`${min} : 00`;
+        /* </테스트 코드> */
         selected[index].innerText= `${min}분`
     });
 })
 
 
-// 타이머 시작, 종료에 관함 이벤트들
+// @@@@@@@타이머 시작, 종료에 관함 이벤트들
 timerStartBtn.addEventListener('click',e=>{
     if(!run){
         run = true;
@@ -290,13 +325,49 @@ btnAddTask.addEventListener('click', e=>{
     // 예정시간 
     total.estimatedTime += Number((count.stopwatch * min /HOUR).toFixed(1)); //소수점 한자리 반올림
     estimatedTime.innerText = (total.estimatedTime).toFixed(1); //부동소수점때문에 한번더 반올림
+
+    한개일때 위처럼 계산하고 task가 두개이상이면
+    곱하기 2로 해서?
+    예정시간은 모든 스톱워치카운트를 통으로 계산
+    따라서 task가 추가되도 
+    "예정시간 = 기존예정시간 + 추가된예정시간" 으로 하면 안되고
+    "예정시간 = 새 예정시간" 으로 해야한다.
+
+    나중에 포모도로 완료하면 예정시간은 줄어들어
+    이때도 "예정시간 = 포모도로 하나만큼 뺀 예정시간" 을 해줘야되겠네
+    그리고 중간에 포모도로옵션이 바뀔때를 대비해서 count.stopwatch에도 구분이 필요할듯 보임
+    분별로 구분해서 그 분의 값을 빼는거지 
+    {
+        10분 : 2개,
+        15분 : 1개,
+        20분 : 0개 ...
+    } 작업마다 몇분짜리인지도 기억을 해놔야겠다.
+
+    작업 추가시 예정시간
+    "예정시간 = (10분*2 + 15분*1)/60분"
+
+    작업 완료시 예정시간 빼기
+    10분짜리 하나 완료했다면
+    "예정시간 = (10분*(2-1) + 15분*1)/60분" 
+    
+    
+
     // 완료할 작업
-    count.task++;
-    taskToComplete.innerText=count.task;
+    total.taskToComplete++;
+    taskToComplete.innerText = total.taskToComplete;
     //완료한 시간
 
     //완료한 작업
-    
+
+
+
+    console.log(total);
+
+    taskListState = true;
+    // if(taskListState) showTaskList("show");
+    showTaskList()
+
+
     runTimes.push({current : 0, max : count.stopwatch});
     setStopwatchCount("reset");
     
@@ -311,6 +382,7 @@ btnAddTask.addEventListener('click', e=>{
             currentTaskName.innerText=task.innerText;
         })
     })
+
     completeBtn.forEach((btn,i)=>{
         btn.addEventListener('click',e=>{
             // 누르면 완료
@@ -319,9 +391,27 @@ btnAddTask.addEventListener('click', e=>{
             // 완료 목록에서는 다시 완료를 취소할수 있다.
             // 취소하면 다시 현재목록으로 복귀
             e.target.parentNode.parentNode.style.display="none";
+
+            // 예정 시간 줄어들어
+
+            // 완료할 작업 줄어들어
+
+            // 완료한 시간 올라가
+
+            // 완료한 작업 올라가
+            total.taskToComplete--;
+            taskToComplete.innerText = total.taskToComplete;
+            // 누르면 모든 btn이 다 눌려..
+            if(total.taskToComplete===0) {
+                taskListState = false;
+                showTaskList();
+            }
         });
     })
 });
+// function complete(){
+    
+// }
 
 // 인풋의 stopwatch 아이콘을 누르면 발생하는 이벤트
 stopwatchIcon.forEach(btn=>{
