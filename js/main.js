@@ -12,7 +12,9 @@
 const RED = "var(--background1)";
 const GRAY = "var(--background4)";
 const HOUR = 60;
-const INITIAL_TIME = 25;
+// 해야할 것 : INITIAL_TIME은 나중에 lastTime으로 바꿔서 마지막 optionTime세팅한거를 제일 처음에 보여주도록 하자
+const INITIAL_TIME = 5; 
+const INITIAL_BREAK_TIME = 5;
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -51,22 +53,22 @@ const selected = document.querySelectorAll('.selected');
 const optionList = document.querySelectorAll('.option-list');
 const optionItem = document.querySelectorAll('.option-item');
 
+let audio = new Audio('/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3');
 let run = false;
 // let originalMin = 1;
 // let min = originalMin;
 let min = INITIAL_TIME;
 let sec = "00";
 let timeInterval;
-let pomoState = false;
 let optionTime;
+let optionTime_temp;
+let breakMin = INITIAL_BREAK_TIME;
+let breakTimeState = false;
 //12개 배열 0 = 5분, 1 = 10분
 let taskPer5Mins = [0,0,0,0,0,0,0,0,0,0,0,0];
 let completedTimePer5Mins = [0,0,0,0,0,0,0,0,0,0,0,0];
 let index = [];
-
-let initialTime;
-
-let total = {
+let total = {//토탈 -> 통계로 바꾸는게 맞을려나
     estimatedTime : 0,
     taskToComplete : 0,
     completedTime : 0,
@@ -75,7 +77,7 @@ let total = {
 
 //count.task는 showOptionList랑 연계되는건데 boolean으로 바꿔도 될듯
 //count.task는 total.taskToComplete와 동일하니까 바꿔주자
-let taskListState = false;
+// let taskListState = false;
 let count = {
     // task : 0,
     stopwatch : 0
@@ -85,38 +87,51 @@ let runTimes = [];
 
 
 function init(){
-    setStopwatchCount(0);
-    setInitailTime(INITIAL_TIME);
+    updateStopwatchCount(0);
+    time.innerText = `${min} : 00`;
     makeSelect();
+    optionTime = INITIAL_TIME;
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
-}
-
-function setInitailTime(time){
-    initialTime = time;
 }
 
 function timer(){
     return setInterval(function(){
-        if(sec==="00"){ // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
+        // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
+        if(sec==="00"){ 
             sec = 2; // 59
             min--;
             if(String(min).length===1){
-                min = "0"+min;
+                min = "0"+min; //01분...09분을 표현하기 위함
             }
-        } else if (sec == "01"){ //초가 "01"이면 1초뒤에는 00 ,만약 min이 "00"이었다면 타이머 종료
+        } 
+        // 초가 "01초"면 1초뒤에는 "00"초 
+        // 이때 "00 : 00 "이면 타이머 종료
+        else if (sec == "01"){ 
             sec = "00";
-            // 포모도로 종료
+
             if(min == "00"){
-                min = optionTime;                
-                completePomodoro(currentTaskName.innerText);
-                // 완료한 task 찾아서
-                // 통계에서 완료한시간,완료한 작업 증가시켜주고요
-                // task에서 0->1로 늘려주세요 
+                if(breakTimeState === false){
+                    breakTimeState = true;
+                    console.log(breakMin);
+                    min = breakMin;
+                    console.log("쉬는시간입니다.");
+                    run=false;
+                    clearInterval(timeInterval);
+                    timerStartBtn.innerText="START";
+                }
+                else {
+                    breakTimeState = false;
+                    min = optionTime;//옵션타임 -> 현재 task 의 attribute('data-time')
+                    completePomodoro(currentTaskName.innerText);
+                }
+                // 타이머를 일단 휴식시간일때랑 포모도로일때로 나눠야해
             }
-        } else {
+        } 
+        // 위 조건 외에는 초가 --로 정상적으로 흘러간다.
+        else {
             sec--;
             if(String(sec).length===1){
-                sec = "0"+sec;
+                sec = "0"+sec; //"01"초... "09"초를 표현
             }
         }
         time.innerText=`${min} : ${sec}`;
@@ -129,7 +144,6 @@ function completePomodoro(taskName){
     // 진행해야할 pomodoro 카운트를 1 증가
     let taskList = taskListContainer.querySelectorAll('li');
     let taskListArr = [...taskList];
-    console.log(taskListArr);
     let index=0;
     let foundTask = taskListArr.find((task,i)=>{
         let findTaskName = task.querySelector('.task-name');
@@ -143,28 +157,20 @@ function completePomodoro(taskName){
 
     //포모도로 완료 -> 예정시간은 완료한만큼 줄고, 완료한 시간은 증가한다.
     // 예정시간
-    setEstimatedTime("minus");
+    updateEstimatedTime("minus");
     // 완료한 시간
-    plusCompletedTime();
-    
-
-    
-
-
+    updateCompletedTime();
+    // audio.play();
     run=false;
     clearInterval(timeInterval);
     timerStartBtn.innerText="START";
 }
-function completeTask(){
-    // 완료할 작업
-    total.taskToComplete--;
-    taskToComplete.innerText = total.taskToComplete;
-    // 완료한 작업
-    total.completedTask++;
-    completedTask.innerText = total.completedTask;
-    
+
+function breakTime(){
+
 }
-function setStopwatchCount(param){
+
+function updateStopwatchCount(param){
     if(param ==="plus"){ 
         count.stopwatch++;
         if(count.stopwatch<=5){
@@ -182,7 +188,7 @@ function setStopwatchCount(param){
             stopwatchCount.innerText = count.stopwatch;
         }
     } else if(param ==="reset"){
-        stopwatchIcon.forEach(btn => btn.style.color=GRAY);
+        stopwatchIcon.forEach(icon => icon.style.color=GRAY);
         count.stopwatch = 0;
         stopwatchCount.innerText = count.stopwatch;
     } 
@@ -206,26 +212,27 @@ function makeSelect(){
     })
 }
 
-function showTaskList(){
-    if(taskListState){
+function showTaskList(boolean){
+    if(boolean){
         taskListContainer.classList.remove('hidden');
     } else {
         taskListContainer.classList.add('hidden');
     }
 }
-// 통계 세팅 함수
-function setEstimatedTime(text){
+
+// 통계 업데이트 함수
+function updateEstimatedTime(order){
     let taskPer5Mins_index = min/5 -1;
     let time = 0;
     let temp = [0,0,0,0,0,0,0,0,0,0,0,0]; //원래 배열을 복구하기 위함
     let roofState = 1;
     // 추가된 task의 pomodoro가 몇분짜리인지 찾아, 횟수만큼 taskPer5Mins에 추가
-    if(text==="plus")
+    if(order==="plus")
     for(let i=0; i<count.stopwatch;i++){
         taskPer5Mins[taskPer5Mins_index]++;
     }
     // 삭제할 task의 pomodoro가 몇분짜리인지 찾아, 한번 감소
-    if(text==="minus") taskPer5Mins[taskPer5Mins_index]--;
+    if(order==="minus") taskPer5Mins[taskPer5Mins_index]--;
     // 예정시간도 구하고, taskPer5Mins를 보존하기위한 temp를 구한다.
     while(roofState !== -1  ){
         let i = taskPer5Mins.findIndex(item=>{
@@ -238,16 +245,11 @@ function setEstimatedTime(text){
             time += (i+1)*5;
         }
     }
-    console.log(time);
     total.estimatedTime = Number((time /HOUR).toFixed(1)); //소수점 한자리 반올림
     estimatedTime.innerText = (total.estimatedTime).toFixed(1); //부동소수점때문에 한번더 반올림
-
     taskPer5Mins = [...temp]; 
-    
-    console.log(taskPer5Mins);
-    console.log(temp);
 }
-function setCompletedTime(){
+function updateCompletedTime(){
     let taskPer5Mins_index = min/5 -1;
     let time = 0;
     let roofState = 1;
@@ -261,13 +263,58 @@ function setCompletedTime(){
         roofState = i;
         if(i !== -1){ // 아직 다 찾지 않았다면 계산해라
             completedTimePer5Mins[i]--;
+            temp[i]++;
             time += (i+1)*5;
         }
     }
     total.completedTime = (time/HOUR).toFixed(1);
     completedTime.innerText = Number(total.completedTime).toFixed(1);
+    completedTimePer5Mins = [...temp];
+}
+function updateCompleteTask(){
+    // 완료할 작업
+    total.taskToComplete--;
+    taskToComplete.innerText = total.taskToComplete;
+    // 완료한 작업
+    total.completedTask++;
+    completedTask.innerText = total.completedTask;
+}
+function taskNameHandler(e){
+    currentTaskName.innerText=task.innerText;
+
+}
+function completeTaskBtnHandler(e){
+// 누르면 완료
+            // 현재 목록에서 사라지고
+            // 완료 목록에서 볼수 있다.
+            // 완료 목록에서는 다시 완료를 취소할수 있다.
+            // 취소하면 다시 현재목록으로 복귀
+            e.target.parentNode.parentNode.style.display="none";
+
+            // 예정 시간 줄어들어
+
+            // 완료할 작업 줄어들어
+
+            // 완료한 시간 올라가
+
+            // 완료한 작업 올라가
+            total.taskToComplete--;
+            taskToComplete.innerText = total.taskToComplete;
+            // 누르면 모든 btn이 다 눌려..
+            if(total.taskToComplete===0) {
+                showTaskList(false);
+            }
 }
 
+function changeTask(taskName){
+    run = false;
+    clearInterval(timeInterval);
+    currentTaskName.innerText=taskName.innerText;
+    timerStartBtn.innerText = "START"
+    min = Number(taskName.getAttribute('data-time'));
+    sec = "00";
+    time.innerText = `${min} : 00`;
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   이벤트 리스너 목록   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -303,7 +350,6 @@ optionList.forEach((optionList,index)=>{
     optionList.addEventListener('click',e=>{
         // 포모도로 시간인지, 휴식 시간인지 조건 나눠야함
         // index가 0이면 포모도로, 1이면 휴식 시간
-        
         switch(e.target.innerText.length){
             case 1: optionTime = (e.target.innerText).substring(0,0);
                     break;
@@ -314,22 +360,19 @@ optionList.forEach((optionList,index)=>{
             case 4: optionTime = (e.target.innerText).substring(0,3);
                     break;
         }
-        /*  <실제 코드>
-            if(index===0){
-                min = optionTime;
-                time.innerText=`${min} : 00`;
-            }
-            else { // 휴식시간
-                breakMin = optionTime;
-                breakTime = `${breakMin} : 00`;
-            }
-            </실제 코드> 
-        */
-        /* <테스트 코드> breakTime에 1분만 해서 테스트 할때 쓸꺼임*/ 
-        min = optionTime;
-        time.innerText=`${min} : 00`;
-        /* </테스트 코드> */
-        selected[index].innerText= `${min}분`
+        if(index===0){
+            min = optionTime;
+            optionTime_temp = optionTime;
+            time.innerText=`${min} : 00`;
+            selected[index].innerText= `${min}분`
+        }
+        else { // 휴식시간
+            breakMin = optionTime;
+            selected[index].innerText= `${breakMin}분`
+        }
+        // console.log(temp);
+        optionTime=optionTime_temp;
+        console.log(optionTime);
     });
 })
 
@@ -364,10 +407,14 @@ timerStartBtn.addEventListener('mouseup',e=>{
 
 // <★task 등록에 관한 이벤트들>
 addTaskBtn.addEventListener('click', e=>{
+    if(inputTask.value ===""){
+        return ;
+    }
+
     let html = `<li>
                     <div class="flex-container">
                         <i class="fas fa-check-circle"></i>
-                        <span class="task-name">${inputTask.value}</span>
+                        <span class="task-name" data-time=${optionTime}>${inputTask.value}</span>
                     </div>
                     <div>
                         <span class="run-times">0/${count.stopwatch}</span>
@@ -377,23 +424,20 @@ addTaskBtn.addEventListener('click', e=>{
 
     taskListContainer.insertAdjacentHTML('beforeend',html);
     inputTask.value = "";
-    
-    let completeBtn = taskListContainer.querySelectorAll('.fa-check-circle');
-    let taskName = taskListContainer.querySelectorAll('.task-name');
-    
-    // 예정시간 
-    setEstimatedTime("plus");    
 
+    let completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
+    let taskName = taskListContainer.querySelectorAll('.task-name');
+    // 예정시간 
+    updateEstimatedTime("plus");
     // 완료할 작업
     total.taskToComplete++;
     taskToComplete.innerText = total.taskToComplete;
 
-    taskListState = true;
-    showTaskList()
+    showTaskList(true)
 
 
     runTimes.push({current : 0, max : count.stopwatch});
-    setStopwatchCount("reset");
+    updateStopwatchCount("reset");
     
     /* 
      * @@해야할 것!@@
@@ -401,41 +445,30 @@ addTaskBtn.addEventListener('click', e=>{
      * task 누르면 해당 task명으로 stopwatch 세팅
      */
 
-    taskName.forEach(task=>{
-        task.addEventListener('click',e=>{
-            currentTaskName.innerText=task.innerText;
-        })
-    })
-
-    completeBtn.forEach((btn,i)=>{
-        btn.addEventListener('click',e=>{
-            // 누르면 완료
-            // 현재 목록에서 사라지고
-            // 완료 목록에서 볼수 있다.
-            // 완료 목록에서는 다시 완료를 취소할수 있다.
-            // 취소하면 다시 현재목록으로 복귀
-            e.target.parentNode.parentNode.style.display="none";
-
-            // 예정 시간 줄어들어
-
-            // 완료할 작업 줄어들어
-
-            // 완료한 시간 올라가
-
-            // 완료한 작업 올라가
-            total.taskToComplete--;
-            taskToComplete.innerText = total.taskToComplete;
-            // 누르면 모든 btn이 다 눌려..
-            if(total.taskToComplete===0) {
-                taskListState = false;
-                showTaskList();
+    // 새로 생긴 html에 이벤트를 등록해주기
+    taskName.forEach(taskName=>{
+        taskName.addEventListener('click',e=>{
+            if(run){
+                let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
+                if(question){
+                    changeTask(taskName);
+                }
+                else {
+                    console.log("취소");
+                    run = true;
+                    return ;
+                }
+            }else{
+                changeTask(taskName);
             }
-        });
-    })
+        })
+    });
+
+    completeTaskBtn.forEach((btn,i)=>{
+        btn.addEventListener('click',completeTaskBtnHandler);
+    });
 });
-// function complete(){
-    
-// }
+
 
 // <★인풋의 stopwatch 아이콘을 누르면 발생하는 이벤트>
 stopwatchIcon.forEach(btn=>{
@@ -445,13 +478,13 @@ stopwatchIcon.forEach(btn=>{
         if(current.dataset.index==="0"){
             if(current.style.color===""||current.style.color===GRAY){
                 current.style.color = RED;
-                setStopwatchCount(Number(current.dataset.index)+1);
+                updateStopwatchCount(Number(current.dataset.index)+1);
             } else if(current.style.color === RED && (next.style.color===GRAY||next.style.color==="")){
                 current.style.color = GRAY;
-                setStopwatchCount(0);
+                updateStopwatchCount(0);
             } else if(current.style.color === RED && next.style.color === RED)
             { 
-                setStopwatchCount(Number(current.dataset.index)+1);
+                updateStopwatchCount(Number(current.dataset.index)+1);
                 stopwatchCount.innerText = count.stopwatch;
                 // 5번째까지 눌려있는 상태에서 1번째꺼를 누르면 2,3,4,5 비활성화되는 반복문
                 while(next.dataset.index !==undefined){
@@ -480,16 +513,16 @@ stopwatchIcon.forEach(btn=>{
             if(next.style.color===GRAY||next.style.color===""){
                 if(current.style.color==RED){
                     current.style.color=GRAY;
-                    setStopwatchCount(Number(current.dataset.index));
+                    updateStopwatchCount(Number(current.dataset.index));
                 }else{
                     current.style.color=RED;
-                    setStopwatchCount(Number(current.dataset.index)+1);
+                    updateStopwatchCount(Number(current.dataset.index)+1);
                 }
             }
             if(next.style.color===RED){
                  // 5까지 눌려있는 상태에서 3을 누르면 4,5 비활성화되는 반복문
                 current=e.target;
-                setStopwatchCount(Number(current.dataset.index)+1);
+                updateStopwatchCount(Number(current.dataset.index)+1);
                 // current.
                 while(next.dataset.index !==undefined){
                     current = next;
@@ -505,8 +538,8 @@ stopwatchIcon.forEach(btn=>{
 stopwatchFastSettingOpenBtn.addEventListener('click',e=>{
     stopwatchFastSetting.classList.toggle('opacity-hide');
 });
-stopwatchCountPlusBtn.addEventListener('click',e=>{setStopwatchCount("plus");});
-stopwatchCountMinusBtn.addEventListener('click',e=>{setStopwatchCount("minus");});
+stopwatchCountPlusBtn.addEventListener('click',e=>{updateStopwatchCount("plus");});
+stopwatchCountMinusBtn.addEventListener('click',e=>{updateStopwatchCount("minus");});
 
 
 

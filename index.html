@@ -44,7 +44,7 @@
             </div>
             <div class="timer-container">
                 <h2 id="current-task-name">현재 Task 이름</h2>
-                <p id="time">25 : 00</p>
+                <p id="time"></p>
                 <button id="btn-timer-start">START</button>
             </div>
             <div class="task-container">
@@ -73,59 +73,62 @@
             <div class="completed-task-container">
                 <button>완료한 작업 보기</button>
             </div>
+            <audio controls> <source src="audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3" type="audio/mp3"> </audio>
         </main>
         
-        <div class="modal-background">
-        </div>
-        <div class="setting-container">
-            <div class="header">
-                <div class="title">POMODORO SETTING</div>
-                <div class="close"><i class="fas fa-times"></i></div>
-            </div>
-            <div class="setting">
-                <span>Pomodoro Time </span>
-                <div class="select-container">
-                    <div class="select">
-                        <div class="selected">5분</div>
-                        <span></span>
-                        <div class="arrow-container">
-                            <div class="arrow"></div>
-                        </div>
-                    </div>
-                    <ul class="option-list hidden">
-                    </ul>
-                </div>
-            </div>
-            <div class="setting">
-                <span>Break Time </span>
-                <div class="select-container">
-                    <div class="select">
-                        <div class="selected">5분</div>
-                        <span></span>
-                        <div class="arrow-container">
-                            <div class="arrow"></div>
-                        </div>
-                    </div>
-                    <ul class="option-list hidden">
-                        <li class="option-item">1분</li>
-                        <li class="option-item">10분</li>
-                        <li class="option-item">15분</li>
-                        <li class="option-item">20분</li>
-                        <li class="option-item">25분</li>
-                        <li class="option-item">30분</li>
-                        <li class="option-item">35분</li>
-                        <li class="option-item">40분</li>
-                        <li class="option-item">45분</li>
-                        <li class="option-item">50분</li>
-                        <li class="option-item">55분</li>
-                        <li class="option-item">60분</li>  
-                    </ul>
-                </div>
-            </div>
-        </div>
+        
         <footer>
             <!-- 푸터 -->
         </footer>
+    </div>
+
+    <div class="modal-background hidden">
+    </div>
+    <div class="setting-container hidden">
+        <div class="header">
+            <div class="title">POMODORO SETTING</div>
+            <div class="close"><i class="fas fa-times"></i></div>
+        </div>
+        <div class="setting">
+            <span>Pomodoro Time </span>
+            <div class="select-container">
+                <div class="select">
+                    <div class="selected">5분</div>
+                    <span></span>
+                    <div class="arrow-container">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                <ul class="option-list hidden">
+                </ul>
+            </div>
+        </div>
+        <div class="setting">
+            <span>Break Time </span>
+            <div class="select-container">
+                <div class="select">
+                    <div class="selected">5분</div>
+                    <span></span>
+                    <div class="arrow-container">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+                <ul class="option-list hidden">
+                    <li class="option-item">1분</li>
+                    <li class="option-item">10분</li>
+                    <li class="option-item">15분</li>
+                    <li class="option-item">20분</li>
+                    <li class="option-item">25분</li>
+                    <li class="option-item">30분</li>
+                    <li class="option-item">35분</li>
+                    <li class="option-item">40분</li>
+                    <li class="option-item">45분</li>
+                    <li class="option-item">50분</li>
+                    <li class="option-item">55분</li>
+                    <li class="option-item">60분</li>  
+                </ul>
+            </div>
+        </div>
     </div>
     <script src="js/main.js"></script>
     
