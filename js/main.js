@@ -55,8 +55,6 @@ const optionItem = document.querySelectorAll('.option-item');
 
 let audio = new Audio('/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3');
 let run = false;
-// let originalMin = 1;
-// let min = originalMin;
 let min = INITIAL_TIME;
 let sec = "00";
 let timeInterval;
@@ -89,7 +87,7 @@ let runTimes = [];
 function init(){
     updateStopwatchCount(0);
     time.innerText = `${min} : 00`;
-    makeSelect();
+    makeOptionItem();
     optionTime = INITIAL_TIME;
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
@@ -198,15 +196,15 @@ function updateStopwatchCount(param){
     }
 }
 
-function makeSelect(){
-    let html;
+function makeOptionItem(){
     let optionTime=5;
+    //optionList[0] = pomodoro time, [1] = break time
     optionList.forEach(optionList=>{
         while(optionTime<=60){
-            html = `<li class="option-item">
+            let optionItem = `<li class="option-item">
                         ${optionTime}분
                     </li>`
-            optionList.insertAdjacentHTML('beforeend',html);
+            optionList.insertAdjacentHTML('beforeend',optionItem);
             optionTime+=5;
         }
     })
@@ -335,6 +333,7 @@ closeBtn.forEach(btn=>{
     })
 });
 select.forEach(select=>{
+    console.log("셀렉트에 이벤트준다.");
     select.addEventListener('click',e=>{
         let optionList = select.nextElementSibling;
         if(optionList.classList.contains("hidden")){
@@ -346,6 +345,9 @@ select.forEach(select=>{
         }
     });
 })
+// 세팅컨테이너 클릭 -> 옵션리스트 닫아
+
+
 optionList.forEach((optionList,index)=>{
     optionList.addEventListener('click',e=>{
         // 포모도로 시간인지, 휴식 시간인지 조건 나눠야함
@@ -375,6 +377,7 @@ optionList.forEach((optionList,index)=>{
         console.log(optionTime);
     });
 })
+
 
 
 // <★타이머 시작, 종료에 관함 이벤트들>
