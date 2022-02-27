@@ -197,13 +197,14 @@ function updateStopwatchCount(param){
 }
 
 function makeOptionItem(){
-    let optionTime=5;
     //optionList[0] = pomodoro time, [1] = break time
-    optionList.forEach(optionList=>{
+    optionList.forEach((optionList,i)=>{
+        let optionTime=5;
         while(optionTime<=60){
+            console.log(optionList,i);
             let optionItem = `<li class="option-item">
-                        ${optionTime}분
-                    </li>`
+                                ${optionTime}분
+                              </li>`
             optionList.insertAdjacentHTML('beforeend',optionItem);
             optionTime+=5;
         }
