@@ -9,8 +9,10 @@
 //initialTime과 이걸 세팅하는 함수가 필요한지 다 만들고나서 체크해보기
 
 
-const RED = "var(--background1)";
+const RED = "var(--pomodoro-background)";
 const GRAY = "var(--background4)";
+const BLUE = "var(--break-time-background)";
+const CONTAINER_BACKGROUND_COLOR = "var(--container-background)";
 const HOUR = 60;
 // 해야할 것 : INITIAL_TIME은 나중에 lastTime으로 바꿔서 마지막 optionTime세팅한거를 제일 처음에 보여주도록 하자
 const INITIAL_TIME = 5; 
