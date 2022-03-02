@@ -53,15 +53,18 @@ const selectContainer = document.querySelectorAll('.select-container');
 const select = document.querySelectorAll('.select');
 const selected = document.querySelectorAll('.selected');
 const optionList = document.querySelectorAll('.option-list');
-const optionItem = document.querySelectorAll('.option-item');
 
 let audio = new Audio('/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3');
 let run = false;
 let min = INITIAL_TIME;
 let sec = "00";
 let timeInterval;
-let optionTime;
-let optionTime_temp;
+// let optionTime = [ INITIAL_TIME, INITIAL_BREAK_TIME ];
+let optionTime = {
+    pomodoro : INITIAL_TIME,
+    breakTime : INITIAL_BREAK_TIME 
+}
+// let optionTime_temp;
 let breakMin = INITIAL_BREAK_TIME;
 let breakTimeState = false;
 //12개 배열 0 = 5분, 1 = 10분
@@ -85,12 +88,17 @@ let count = {
 
 let runTimes = [];
 
+init();
 
 function init(){
     updateStopwatchCount(0);
-    time.innerText = `${min} : 00`;
+    setTime(min);
     makeOptionItem();
-    optionTime = INITIAL_TIME;
+    // optionTime.forEach((time,index) =>{
+    //     if(index === 0) time[index] = INITIAL_TIME;
+    //     else time[index] = INITIAL_BREAK_TIME; 
+    // });
+    
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
 
@@ -137,6 +145,8 @@ function timer(){
         time.innerText=`${min} : ${sec}`;
     },1000)
 }
+
+
 
 function completePomodoro(taskName){
     // 완료한 포모도로의 taskName을 받아
@@ -199,11 +209,9 @@ function updateStopwatchCount(param){
 }
 
 function makeOptionItem(){
-    //optionList[0] = pomodoro time, [1] = break time
-    optionList.forEach((optionList,i)=>{
+    optionList.forEach(optionList=>{
         let optionTime=5;
         while(optionTime<=60){
-            console.log(optionList,i);
             let optionItem = `<li class="option-item">
                                 ${optionTime}분
                               </li>`
@@ -314,7 +322,11 @@ function changeTask(taskName){
     timerStartBtn.innerText = "START"
     min = Number(taskName.getAttribute('data-time'));
     sec = "00";
-    time.innerText = `${min} : 00`;
+    time.innerText = `${min} : ${sec}`;
+}
+
+function setTime(min, sec = "00"){
+    time.innerText = `${min} : ${sec}`;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   이벤트 리스너 목록   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -324,19 +336,21 @@ settingBtn.addEventListener('click',e=>{
     modalBackground.classList.remove("hidden");
     settingContainer.classList.remove("hidden");
 });
+
 modalBackground.addEventListener('click',e=>{
     modalBackground.classList.add("hidden");
     //조건문 : 모달중 hidden이 없는거만 hidden 주기??
     settingContainer.classList.add("hidden");
 });
+
 closeBtn.forEach(btn=>{
     btn.addEventListener('click',e=>{
         modalBackground.classList.add("hidden");
         e.target.parentNode.parentNode.parentNode.classList.add("hidden");
-    })
+    });
 });
+
 select.forEach(select=>{
-    console.log("셀렉트에 이벤트준다.");
     select.addEventListener('click',e=>{
         let optionList = select.nextElementSibling;
         if(optionList.classList.contains("hidden")){
@@ -347,43 +361,47 @@ select.forEach(select=>{
             optionList.classList.add('hidden');
         }
     });
-})
-// 세팅컨테이너 클릭 -> 옵션리스트 닫아
+});
 
-
-optionList.forEach((optionList,index)=>{
+optionList.forEach((optionList,i)=>{
     optionList.addEventListener('click',e=>{
-        // 포모도로 시간인지, 휴식 시간인지 조건 나눠야함
-        // index가 0이면 포모도로, 1이면 휴식 시간
+        // e.target.innerText = "5분" , "10분"의 형태
+        // 숫자만 뽑아서 optionTime에 저장한다.
+        let number;
         switch(e.target.innerText.length){
-            case 1: optionTime = (e.target.innerText).substring(0,0);
+            case 1: number = (e.target.innerText).substring(0,0);
                     break;
-            case 2: optionTime = (e.target.innerText).substring(0,1);
+            case 2: number = (e.target.innerText).substring(0,1);
                     break;
-            case 3: optionTime = (e.target.innerText).substring(0,2);
-                    break;
-            case 4: optionTime = (e.target.innerText).substring(0,3);
+            case 3: number = (e.target.innerText).substring(0,2);
                     break;
         }
-        if(index===0){
-            min = optionTime;
-            optionTime_temp = optionTime;
-            time.innerText=`${min} : 00`;
-            selected[index].innerText= `${min}분`
+        // i가 0이면 포모도로, 1이면 휴식 시간
+        if(i===0){
+            // 타이머가 실행 중이면 타이머의 시간에는 변화를 주지 않는다.
+            if (!run) {
+                min = number;
+                time.innerText=`${min} : 00`;
+                selected[i].innerText= `${min}분`;
+            }
+            optionTime[i] = number;
+        } else {
+            breakMin = number;
+            selected[index].innerText= `${breakMin}분`;
         }
-        else { // 휴식시간
-            breakMin = optionTime;
-            selected[index].innerText= `${breakMin}분`
-        }
-        // console.log(temp);
-        optionTime=optionTime_temp;
-        console.log(optionTime);
     });
-})
+});
+
+optionList.forEach(optionList => {
+    optionList.addEventListener('mouseleave', e => {
+        optionList.style.height="0px";
+        optionList.classList.add('hidden');
+    });
+});
 
 
 
-// <★타이머 시작, 종료에 관함 이벤트들>
+// <타이머 시작, 종료에 관한 이벤트들>
 timerStartBtn.addEventListener('click',e=>{
     if(!run){
         run = true;
@@ -400,6 +418,7 @@ timerStartBtn.addEventListener('mousedown',e=>{
     timerStartBtn.style.boxShadow="none";
     timerStartBtn.style.top="6px";
 });
+
 timerStartBtn.addEventListener('mouseup',e=>{
     timerStartBtn.style.boxShadow="rgb(235 235 235) 0px 6px 0px";
     timerStartBtn.style.top="0px";
@@ -420,7 +439,7 @@ addTaskBtn.addEventListener('click', e=>{
     let html = `<li>
                     <div class="flex-container">
                         <i class="fas fa-check-circle"></i>
-                        <span class="task-name" data-time=${optionTime}>${inputTask.value}</span>
+                        <span class="task-name" data-time=${optionTime[0]}>${inputTask.value}</span>
                     </div>
                     <div>
                         <span class="run-times">0/${count.stopwatch}</span>
@@ -439,7 +458,7 @@ addTaskBtn.addEventListener('click', e=>{
     total.taskToComplete++;
     taskToComplete.innerText = total.taskToComplete;
 
-    showTaskList(true)
+    showTaskList(true);
 
 
     runTimes.push({current : 0, max : count.stopwatch});
@@ -530,7 +549,7 @@ stopwatchIcon.forEach(btn=>{
                 current=e.target;
                 updateStopwatchCount(Number(current.dataset.index)+1);
                 // current.
-                while(next.dataset.index !==undefined){
+                while(next.dataset.index !== undefined){
                     current = next;
                     current.style.color=GRAY;
                     next = current.nextElementSibling;
@@ -544,9 +563,9 @@ stopwatchIcon.forEach(btn=>{
 stopwatchFastSettingOpenBtn.addEventListener('click',e=>{
     stopwatchFastSetting.classList.toggle('opacity-hide');
 });
+
 stopwatchCountPlusBtn.addEventListener('click',e=>{updateStopwatchCount("plus");});
 stopwatchCountMinusBtn.addEventListener('click',e=>{updateStopwatchCount("minus");});
 
 
 
-init();
