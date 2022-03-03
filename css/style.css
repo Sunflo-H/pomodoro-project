@@ -67,6 +67,9 @@ header > .flex-container > div {
   font-size: 13px;
   cursor: pointer;
 }
+header > .flex-container > div:hover {
+  background-color: #ffffff32;
+}
 
 main {
   width: 550px;
@@ -181,6 +184,7 @@ main {
 .task-container > ul {
   width: 100%;
   list-style: none;
+  margin-top: 20px;
 }
 .task-container > ul > span {
   display: block;
@@ -220,7 +224,7 @@ main {
   cursor: pointer;
 }
 .task-container button {
-  width: 20px;
+  /* width: 20px; */
   cursor: pointer;
   color: var(--background4);
   font-size: 16px;
@@ -232,7 +236,6 @@ main {
 /* 트랜지션 필요한 태그들 */
 /* 
 상단 report 등등
-start 버튼
 */
 
 /* 모달 */
@@ -356,4 +359,19 @@ start 버튼
 .option-item:last-child {
   border: none;
   border-radius: 0px 0px 5px 5px;
+}
+
+
+/* login-container */
+.login-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform:translate(-200px,-150px);
+  width: 400px;
+  height: 300px;
+  background-color: #ffe;
+  border-radius: 10px;
+  color:black;
+  padding :15px 20px;
 }
