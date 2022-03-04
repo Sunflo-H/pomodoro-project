@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/edda6de607.js" crossorigin="anonymous"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
@@ -121,20 +122,27 @@
             </div>
         </div>
     </div>
-    <div class="login-container hidden">
+    <div class="login-container ">
         <div class="header">
             <div class="title">Login</div>
             <div class="close"><i class="fas fa-times"></i></div>
         </div>
         <div class="login">
             <div class="id">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa fa-user"></i>
+                <input type="text" placeholder="아이디">
             </div>
             <div class="password">
-                <i class="fa-solid fa-lock"></i>
+                <i class="fa fa-lock"></i>
+                <input type="password" placeholder="비밀번호">
             </div>
-            <button>로그인</button>
         </div>
+        <button>로그인</button>
+        <ul> 
+            <li><span>비밀번호 찾기</span></li>
+            <li><span>아이디 찾기</span></li>
+            <li><span>회원가입</span></li>
+        </ul>
     </div>    
 </body>
 </html>

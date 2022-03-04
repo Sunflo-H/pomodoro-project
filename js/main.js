@@ -12,6 +12,9 @@
 // 해야할 것 : INITIAL_TIME은 나중에 lastTime으로 바꿔서 마지막 optionTime세팅한거를 제일 처음에 보여주도록 하자
 // footer 만들기
 
+//로그인 - 아이디, 비번중 아이디만 맞았을때 비밀번호를 확인하세요, 아이디도 틀리면 계정을 확인하세요.
+//회원가입 - 아이디(이메일) , 비밀번호, 비밀번호 재확인, 닉네임
+
 
 const RED = "var(--pomodoro-background)";
 const GRAY = "var(--background4)";
