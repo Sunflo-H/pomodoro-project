@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://kit.fontawesome.com/edda6de607.js" crossorigin="anonymous"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/index.css">
+    <script defer src="assets/js/index.js"></script>
 </head>
 <body>
     <div class="wrapper">
@@ -21,8 +21,8 @@
                 <div id="report"><i class="fas fa-poll"></i> Report</div>
                 <div id="setting"><i class="fas fa-cog"></i> Setting</div>
                 <div id="login"><i class="fas fa-user-circle"></i> Login</div>
+                <div id="acount" class="hidden"></div>
             </div>
-            <script defer src="js/main.js"></script>
         </header>
         <main>
             <!-- 통계 : 시간, 작업수  -->
@@ -75,7 +75,7 @@
             <div class="completed-task-container">
                 <button>완료한 작업 보기</button>
             </div>
-            <audio class ="hidden" controls> <source src="audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3" type="audio/mp3"> </audio>
+            <audio class ="" controls> <source src="/assets/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3" type="audio/mp3"> </audio>
         </main>
         
         
@@ -130,18 +130,18 @@
         <div class="login">
             <div class="id">
                 <i class="fa fa-user"></i>
-                <input type="text" placeholder="아이디">
+                <input id="input-id"type="text" placeholder="아이디">
             </div>
             <div class="password">
                 <i class="fa fa-lock"></i>
-                <input type="password" placeholder="비밀번호">
+                <input id="input-pwd" type="password" placeholder="비밀번호">
             </div>
         </div>
-        <button>로그인</button>
+        <button id="login-button">로그인</button>
         <ul> 
             <li><span>비밀번호 찾기</span></li>
             <li><span>아이디 찾기</span></li>
-            <li><span>회원가입</span></li>
+            <li><a href="assets/HTML/signup.html"><span>회원가입</span></a></li>
         </ul>
     </div>    
 </body>

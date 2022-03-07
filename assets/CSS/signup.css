@@ -1,0 +1,87 @@
+:root {
+    --pomodoro-background : #D95550;
+    --container-background : #ffffff1a;
+    --break-time-background : #457ca3;
+    --redbrown : #541c1f;
+    --black : #0000001A;
+    --white1 : #FFFFFF;
+    --white2 : #FFFFFFB3;
+    --gray : #aaa;
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    background-color: #f5f6f7;
+}
+.hidden {
+    /* opacity: 0;
+    pointer-events: none; */
+    display: none !important;
+}
+
+/* wrapper */
+.wrapper {
+    width: 500px;
+    margin: auto;
+}
+
+/* header */
+header {
+    width: auto;
+    margin: 4rem 0 0;
+    text-align: center;
+}
+header span {
+    color: #D95550;
+    font-size: 3.5rem;
+    font-weight: 600;
+}
+
+/* main */
+main {
+    margin: 2rem 1rem;
+}
+main .input-container {
+    margin-top: 2rem;
+    height: 85px;
+}
+main label {
+    display: block;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+}
+main label + input {
+    width: 100%;
+    outline: none;
+    padding: 15px;
+    border: 1px solid #aaa;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+main .warning {
+    display: block;
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+
+
+/* main input[type=submit], */
+main button{
+    margin-top: 2rem;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #D95550;    
+    color: #ffffffe5;
+    cursor: pointer;
+}
+main button a {
+    color: #ffffffe5;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+

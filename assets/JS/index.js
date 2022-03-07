@@ -53,6 +53,7 @@ const completedTask = statistics.querySelector('div:nth-child(4)>h1'); //완료�
 const settingBtn = document.querySelector('#setting');
 const loginBtn = document.querySelector('#login');
 const reportBtn = document.querySelector('#report');
+const acountBtn = document.querySelector('#acount');
 //modal
 const modalBackground = document.querySelector('.modal-background');
 //modal - setting
@@ -66,6 +67,10 @@ const optionList = document.querySelectorAll('.option-list');
 //modal - login
 const loginContainer = document.querySelector('.login-container');
 const loginContainerCloseBtn = loginContainer.querySelector('.close>i')
+const id = loginContainer.querySelector('#input-id');
+const pwd = loginContainer.querySelector('#input-pwd');
+const login = loginContainer.querySelector('#login-button');
+
 
 let audio = new Audio('/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3');
 let run = false;
@@ -98,7 +103,10 @@ let count = {
 // [{ current: 0 , max: 5 }, { current: 1 , max: 3 }] 이런식으로 저장
 let runTimes = [];
 
+let loginState;
 init();
+
+
 
 function test() {
     console.log(optionTime);
@@ -106,16 +114,36 @@ function test() {
     console.log(taskPer5Mins);
     console.log(completedTimePer5Mins);
 }
+
 function init() {
     updateStopwatchCount(0);
     showTimer(min);
     makeOptionItem();
+    getLoginState();
+    console.log(loginState);
+    if(loginState) showNickname();
     // optionTime.forEach((time,index) =>{
     //     if(index === 0) time[index] = INITIAL_TIME;
     //     else time[index] = INITIAL_BREAK_TIME; 
     // });
 
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
+}
+
+function showNickname() {
+    let loggingUser = JSON.parse(localStorage.getItem('loggingUser'));
+    loginBtn.classList.add('hidden');
+    acountBtn.classList.remove('hidden');
+    acountBtn.innerHTML = loggingUser.nickname;
+}
+
+function getLoginState() {
+    let state = localStorage.getItem('loginState');
+    switch (state) {
+        case "null": 
+        case "false": loginState = false; break;
+        case "true": loginState = true; break;
+    }
 }
 
 function timer() {
@@ -379,7 +407,6 @@ function completeTaskBtnHandler(e) {
 
 
 function showTimer(min, sec = "00") {
-    console.log(min);
     time.innerText = `${min} : ${sec}`;
 }
 
@@ -643,13 +670,46 @@ loginBtn.addEventListener('click', e => {
 // login 모달 닫기 - 모달 외의 화면을 클릭
 modalBackground.addEventListener('click', e => {
     modalBackground.classList.add("hidden");
-    settingContainer.classList.add("hidden");
     loginContainer.classList.add('hidden');
 });
 
 // login 모달 닫기 - 모달의 닫기 버튼을 클릭
 loginContainerCloseBtn.addEventListener('click', e => {
-    console.log(e.target);
     modalBackground.classList.add("hidden");
     e.target.parentNode.parentNode.parentNode.classList.add("hidden");
 });
+
+// login 버튼 클릭 
+login.addEventListener('click', e => {
+    let users = JSON.parse(localStorage.getItem('users'));
+    let i = users.findIndex(user => {
+        return (user.id === id.value) && (user.pwd === pwd.value);
+    })
+    if (i !== -1) {
+        alert("로그인되었습니다.");
+        modalBackground.classList.add("hidden");
+        loginContainer.classList.add('hidden');
+        
+        
+        let loggingUser = {
+            id: users[i].id,
+            pwd: users[i].pwd,
+            nickname: users[i].nickname
+        }
+        loginState = true;
+        localStorage.setItem('loginState', loginState);
+        localStorage.setItem('loggingUser',JSON.stringify(loggingUser));
+        showNickname();
+    } else {
+        alert("입력하신 정보가 올바르지 않습니다.");
+    }
+
+});
+// 로그인 클릭
+// db를 반복해서 인덱스검색
+// 검색한 인덱스와 users의 인덱스를 비교
+// 인덱스 === -1 이면 아이디 틀림
+// 인덱스 !== -1 이면 아이디는 맞음 -> 비밀번호까지 체크
+
+// 비밀번호가 같으면 로그인
+// 비밀번호가 다르면 비밀번호를 확인해 주세요
