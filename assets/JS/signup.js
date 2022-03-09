@@ -8,61 +8,99 @@ const id = document.querySelector('#input-id');
 const pwd = document.querySelector('#input-password');
 const pwdReconfirm = document.querySelector('#input-password-reconfirm');
 const nickname = document.querySelector('#input-nickname');
+const email = document.querySelector('#input-email');
 
 
 let localStorageUser = JSON.parse(localStorage.getItem('users'));
-let users = [...localStorageUser];
+let users;
+if (localStorageUser !== null) {
+    users = [...localStorageUser];
+}
 
 let check = {
     id: false,
     pwd: false,
     pwdReconfirm: false,
-    nickname: false
+    nickname: false,
+    email: false
 };
 
 class User {
-    constructor(id, pwd, nickname) {
+    constructor(id, pwd, nickname, email) {
         this.id = id;
         this.pwd = pwd;
         this.nickname = nickname;
+        this.email = email;
+    }
+}
+
+// 공백일때 "입력해주세요" // 공백아니면 -> 중복일때 경고, 중복아닐때 통과
+function passCheck(item) {
+    let text;
+    let pass;
+    switch (item) {
+        case id: text = "아이디"; pass = check.id; break;
+        case nickname: text = "닉네임"; pass = check.nickname; break;
+        case email: text = "이메일"; pass = check.email; break;
+    }
+    console.log(pass);
+    if (item.value === "") {
+        item.nextElementSibling.classList.remove('hidden');
+        if (text === id) {
+            item.nextElementSibling.innerText = `${text}를 입력해주세요`
+        } else {
+            item.nextElementSibling.innerText = `${text}을 입력해주세요`
+        }
+        pass = false;
+    } else {
+        let overlap;
+        if (users === undefined) overlap = false;
+        else {
+            users.forEach(user => {
+                if (user.item === item.value) {
+                    overlap = true;
+                }
+            });
+        }
+
+        if (overlap) {
+            console.log("오버랩 트루");
+            item.nextElementSibling.classList.remove('hidden');
+            item.nextElementSibling.innerText = `중복된 ${text}입니다.`
+            pass = false;
+        } else {
+            console.log("오버랩 거짓");
+            item.nextElementSibling.classList.add('hidden');
+            pass = true;
+            console.log(pass);
+            console.log(check);
+        }
     }
 }
 
 signUpBtn.addEventListener('click', e => {
-    if (check.id && check.pwd && check.pwdReconfirm && check.nickname) {
-        let user = new User(id.value, pwd.value, nickname.value);
+    if (check.id && check.pwd && check.pwdReconfirm && check.nickname && check.email) {
+        let user = new User(id.value, pwd.value, nickname.value, email.value);
+        if (users === undefined) {
+            localStorage.setItem('users', JSON.stringify([]));
+            users = localStorage.getItem('users');
+        }
         users.push(user);
         localStorage.setItem('users', JSON.stringify(users));
         alert("가입했습니다.");
         location.href = "/index.html";
     } else {
+        console.log(check);
         alert("항목을 입력해 주세요");
     }
 });
 
-// 공백일때 "입력해주세요" // 공백아니면 -> 중복일때 경고, 중복아닐때 통과
-id.addEventListener('blur', e => {
-    if (id.value === "") {
-        id.nextElementSibling.classList.remove('hidden');
-        id.nextElementSibling.innerText = "아이디를 입력해주세요"
-        check.id = false;
-    } else {
-        let overlap = false;
-        users.forEach(user => {
-            if (user.id === id.value) {
-                overlap = true;
-            }
-        });
-        if (overlap) {
-            id.nextElementSibling.classList.remove('hidden');
-            id.nextElementSibling.innerText = "중복된 아이디입니다."
-            check.id = false;
-        } else {
-            id.nextElementSibling.classList.add('hidden');
-            check.id = true;
-        }
-    }
-});
+
+id.addEventListener('blur', e => passCheck(id));
+
+nickname.addEventListener('blur', e => passCheck(nickname));
+
+email.addEventListener('blur', e => passCheck(email));
 
 pwd.addEventListener('blur', e => {
     if (pwd.value === "") {
@@ -84,25 +122,4 @@ pwdReconfirm.addEventListener('blur', e => {
     }
 });
 
-nickname.addEventListener('blur', e => {
-    if (nickname.value === "") {
-        nickname.nextElementSibling.classList.remove('hidden');
-        nickname.nextElementSibling.innerText = "닉네임을 입력해주세요"
-        check.nickname = false;
-    } else {
-        let overlap = false;
-        users.forEach(user => {
-            if (user.nickname === nickname.value) {
-                overlap = true;
-            }
-        });
-        if (overlap) {
-            nickname.nextElementSibling.classList.remove('hidden');
-            nickname.nextElementSibling.innerText = "중복된 닉네임입니다."
-            check.nickname = false;
-        } else {
-            nickname.nextElementSibling.classList.add('hidden');
-            check.nickname = true;
-        }
-    }
-});
+

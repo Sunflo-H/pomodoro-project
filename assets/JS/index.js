@@ -53,7 +53,7 @@ const completedTask = statistics.querySelector('div:nth-child(4)>h1'); //완료�
 const settingBtn = document.querySelector('#setting');
 const loginBtn = document.querySelector('#login');
 const reportBtn = document.querySelector('#report');
-const acountBtn = document.querySelector('#acount');
+const userBtn = document.querySelector('#user');
 //modal
 const modalBackground = document.querySelector('.modal-background');
 //modal - setting
@@ -104,9 +104,8 @@ let count = {
 let runTimes = [];
 
 let loginState;
+
 init();
-
-
 
 function test() {
     console.log(optionTime);
@@ -120,21 +119,57 @@ function init() {
     showTimer(min);
     makeOptionItem();
     getLoginState();
-    console.log(loginState);
-    if(loginState) showNickname();
-    // optionTime.forEach((time,index) =>{
-    //     if(index === 0) time[index] = INITIAL_TIME;
-    //     else time[index] = INITIAL_BREAK_TIME; 
-    // });
+    if(loginState) showuserBtn();
 
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
 
-function showNickname() {
+// 로그아웃 -> 로그인상태는 false, localStorage의 loggingUser 삭제
+function loginAndLogout(boolean) {
+    loginState = boolean;
+    if (loginState) {
+        let users = JSON.parse(localStorage.getItem('users'));
+        if(users === null) {
+            alert("입력하신 정보가 올바르지 않습니다.");
+            return;
+        }
+        let i = users.findIndex(user => {
+            return (user.id === id.value) && (user.pwd === pwd.value);
+        })
+        if (i !== -1) {
+            let loggingUser = {
+                id: users[i].id,
+                pwd: users[i].pwd,
+                nickname: users[i].nickname
+            }
+            localStorage.setItem('loginState', loginState);
+            localStorage.setItem('loggingUser',JSON.stringify(loggingUser));
+            showuserBtn();
+            alert("로그인 되었습니다.");
+            modalBackground.classList.add("hidden");
+            loginContainer.classList.add('hidden');
+        } else {
+            alert("입력하신 정보가 올바르지 않습니다.");
+        }
+    }
+    else {
+        localStorage.setItem('loginState', loginState);
+        localStorage.removeItem('loggingUser');
+        showLoginBtn();
+        alert("로그아웃 되었습니다.");
+    }
+}
+
+function showuserBtn() {
     let loggingUser = JSON.parse(localStorage.getItem('loggingUser'));
     loginBtn.classList.add('hidden');
-    acountBtn.classList.remove('hidden');
-    acountBtn.innerHTML = loggingUser.nickname;
+    userBtn.classList.remove('hidden');
+    userBtn.innerHTML = loggingUser.nickname;
+}
+function showLoginBtn() {
+    loginBtn.classList.remove('hidden');
+    userBtn.classList.add('hidden');
+    userBtn.innerHTML = "";
 }
 
 function getLoginState() {
@@ -410,6 +445,7 @@ function showTimer(min, sec = "00") {
     time.innerText = `${min} : ${sec}`;
 }
 
+
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   이벤트 리스너 목록   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
@@ -590,7 +626,6 @@ stopwatchFastSettingOpenBtn.addEventListener('click', e => {
 stopwatchCountPlusBtn.addEventListener('click', e => { updateStopwatchCount("plus"); });
 stopwatchCountMinusBtn.addEventListener('click', e => { updateStopwatchCount("minus"); });
 
-
 // pomodoro setting 열기
 settingBtn.addEventListener('click', e => {
     modalBackground.classList.remove("hidden");
@@ -679,37 +714,12 @@ loginContainerCloseBtn.addEventListener('click', e => {
     e.target.parentNode.parentNode.parentNode.classList.add("hidden");
 });
 
-// login 버튼 클릭 
-login.addEventListener('click', e => {
-    let users = JSON.parse(localStorage.getItem('users'));
-    let i = users.findIndex(user => {
-        return (user.id === id.value) && (user.pwd === pwd.value);
-    })
-    if (i !== -1) {
-        alert("로그인되었습니다.");
-        modalBackground.classList.add("hidden");
-        loginContainer.classList.add('hidden');
-        
-        
-        let loggingUser = {
-            id: users[i].id,
-            pwd: users[i].pwd,
-            nickname: users[i].nickname
-        }
-        loginState = true;
-        localStorage.setItem('loginState', loginState);
-        localStorage.setItem('loggingUser',JSON.stringify(loggingUser));
-        showNickname();
-    } else {
-        alert("입력하신 정보가 올바르지 않습니다.");
-    }
+// login 클릭 
+login.addEventListener('click', e => loginAndLogout(true));
 
+// user 클릭
+userBtn.addEventListener('click', e => {
+    loginAndLogout(false);
 });
-// 로그인 클릭
-// db를 반복해서 인덱스검색
-// 검색한 인덱스와 users의 인덱스를 비교
-// 인덱스 === -1 이면 아이디 틀림
-// 인덱스 !== -1 이면 아이디는 맞음 -> 비밀번호까지 체크
 
-// 비밀번호가 같으면 로그인
-// 비밀번호가 다르면 비밀번호를 확인해 주세요
+

@@ -43,7 +43,7 @@ main {
     margin: 2rem 1rem;
 }
 main .input-container {
-    margin-top: 2rem;
+    margin-top: 0.5rem;
     height: 85px;
 }
 main label {
