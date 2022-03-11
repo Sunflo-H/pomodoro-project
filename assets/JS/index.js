@@ -2,7 +2,6 @@
 //해야 할 일
 
 //report , setting, login기능 만들기
-// 로컬저장소를 이용한 로그인 => 간단 회원가입 => 로그인
 //알람음 => 여러 알람음 입력하고 세팅가능하게, 타이머 완료시 알람음
 //백엔드 필요없는거부터 해서 
 //setting 먼저
@@ -17,7 +16,7 @@
 
 
 const RED = "var(--pomodoro-background)";
-const GRAY = "var(--background4)";
+const GRAY = "var(--black1A)";
 const BLUE = "var(--break-time-background)";
 const CONTAINER_BACKGROUND_COLOR = "var(--container-background)";
 const HOUR = 60;
@@ -54,6 +53,8 @@ const settingBtn = document.querySelector('#setting');
 const loginBtn = document.querySelector('#login');
 const reportBtn = document.querySelector('#report');
 const userBtn = document.querySelector('#user');
+//completed task
+const completedTaskBtn = document.querySelector('.completed-task-btn');
 //modal
 const modalBackground = document.querySelector('.modal-background');
 //modal - setting
@@ -95,7 +96,6 @@ let stats = {
     completedTask: 0
 };
 
-
 let count = {
     stopwatch: 0
 }
@@ -104,6 +104,7 @@ let count = {
 let runTimes = [];
 
 let loginState;
+let user; // 로그인중인 사용자의 정보가 업데이트 될때마다 매번 저장하는 변수
 
 init();
 
@@ -119,15 +120,33 @@ function init() {
     showTimer(min);
     makeOptionItem();
     getLoginState();
-    if(loginState) showuserBtn();
+    if(loginState) {
+        showUserBtn();
+        user = JSON.parse(localStorage.getItem('user'));
+    }
 
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
 
-// 로그아웃 -> 로그인상태는 false, localStorage의 loggingUser 삭제
+function updateUser(taskKey, taskName, taskTime, maxRunTime, currentRunTime = 0) {
+    user.task[taskKey].key = taskKey;
+    user.task[taskKey].name = taskName;
+    user.task[taskKey].optionTime = taskTime;
+    user.task[taskKey].runTime.max = maxRunTime;
+    user.task[taskKey].runTime.current = currentRunTime;
+    user.stats.estimatedTime = stats.estimatedTime;
+    user.stats.taskToComplete = stats.taskToComplete;
+    user.stats.completedTime = stats.completedTime;
+    user.stats.completedTask = stats.completedTask;
+
+    localStorage.setItem('user',JSON.stringify(user));
+}
+
+// 로그아웃 -> 로그인상태는 false, localStorage의 user 삭제
 function loginAndLogout(boolean) {
     loginState = boolean;
-    if (loginState) {
+    
+    if (loginState) { // 로그인
         let users = JSON.parse(localStorage.getItem('users'));
         if(users === null) {
             alert("입력하신 정보가 올바르지 않습니다.");
@@ -137,14 +156,10 @@ function loginAndLogout(boolean) {
             return (user.id === id.value) && (user.pwd === pwd.value);
         })
         if (i !== -1) {
-            let loggingUser = {
-                id: users[i].id,
-                pwd: users[i].pwd,
-                nickname: users[i].nickname
-            }
+            user = users[i];
             localStorage.setItem('loginState', loginState);
-            localStorage.setItem('loggingUser',JSON.stringify(loggingUser));
-            showuserBtn();
+            localStorage.setItem('user',JSON.stringify(user));
+            showUserBtn();
             alert("로그인 되었습니다.");
             modalBackground.classList.add("hidden");
             loginContainer.classList.add('hidden');
@@ -152,19 +167,19 @@ function loginAndLogout(boolean) {
             alert("입력하신 정보가 올바르지 않습니다.");
         }
     }
-    else {
+    else { // 로그아웃
         localStorage.setItem('loginState', loginState);
-        localStorage.removeItem('loggingUser');
+        localStorage.removeItem('user');
         showLoginBtn();
         alert("로그아웃 되었습니다.");
     }
 }
 
-function showuserBtn() {
-    let loggingUser = JSON.parse(localStorage.getItem('loggingUser'));
+function showUserBtn() {
+    let user = JSON.parse(localStorage.getItem('user'));
     loginBtn.classList.add('hidden');
     userBtn.classList.remove('hidden');
-    userBtn.innerHTML = loggingUser.nickname;
+    userBtn.innerHTML = user.nickname;
 }
 function showLoginBtn() {
     loginBtn.classList.remove('hidden');
@@ -246,6 +261,11 @@ function completePomodoro(taskName) {
     updateEstimatedTime("minus");
     // 완료한 시간
     updateCompletedTime();
+
+    // 로그인중인 유저 정보 업데이트
+    // 여기서 런타임을 증가시키는데 이거 하기 전에 작업을 담는 기능을 먼저 만들자
+    updateLogginUser();
+
     // audio.play();
     run = false;
     clearInterval(timeInterval);
@@ -471,7 +491,7 @@ timerStartBtn.addEventListener('mousedown', e => {
 });
 
 timerStartBtn.addEventListener('mouseup', e => {
-    timerStartBtn.style.boxShadow = "rgb(235 235 235) 0px 6px 0px";
+    timerStartBtn.style.boxShadow = "rgb(214, 214, 214) 0px 6px 0px";
     timerStartBtn.style.top = "0px";
     if (!run && currentTaskName.getAttribute('data-time') !== null) {
         timerStartBtn.innerText = "STOP"
@@ -484,6 +504,10 @@ timerStartBtn.addEventListener('mouseup', e => {
 // task 등록
 addTaskBtn.addEventListener('click', e => {
     if (inputTask.value === "") {
+        alert('작업명을 설정해주세요')
+        return;
+    } else if (count.stopwatch === 0) {
+        alert('포모도로 횟수를 설정해주세요')
         return;
     }
 
@@ -494,40 +518,41 @@ addTaskBtn.addEventListener('click', e => {
                     </div>
                     <div>
                         <span class="run-times">0/${count.stopwatch}</span>
-                        <button><i class="fas fa-ellipsis-v"></i></button>
+                        <button><i class="fa fa-trash"></i></button>
                     </div>
                 </li>`
 
     taskListContainer.insertAdjacentHTML('beforeend', html);
-    inputTask.value = "";
-
+    
     const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
     const taskName = taskListContainer.querySelectorAll('.task-name');
     const li = taskListContainer.querySelectorAll('li');
-
+    
     // CSS
     breakTimeState ?
         li.forEach(li => li.style.color = BLUE) :
         li.forEach(li => li.style.color = RED);
-
-    // 예정시간 증가
-    updateEstimatedTime("plus");
-
-    // 완료할 작업 증가
-    stats.taskToComplete++;
-    taskToComplete.innerText = stats.taskToComplete;
-
+        
+        // 예정시간 증가
+        updateEstimatedTime("plus");
+        
+        // 완료할 작업 증가
+        stats.taskToComplete++;
+        taskToComplete.innerText = stats.taskToComplete;
+        
+        // runTimes에 추가 
+        runTimes.push({ current: 0, max: count.stopwatch });
+        
+        console.log(JSON.parse(localStorage.getItem('users')));
+        console.log(user);
+        // 통계정보와 task정보를 user에 저장, task - name, time, runtime
+        updateUser(runTimes.length-1, inputTask.value, optionTime.pomodoro, count.stopwatch);
+        console.log(user.stats);
+    console.log(user);
+    
+    inputTask.value = "";
     showTaskList(true);
-
-
-    runTimes.push({ current: 0, max: count.stopwatch });
     updateStopwatchCount("reset");
-
-    /* 
-     * @@해야할 것!@@
-     * 설정버튼에도 이벤트 줘야해
-     * task 누르면 해당 task명으로 stopwatch 세팅
-     */
 
     // 새로 생긴 html에 이벤트를 등록해주기
     taskName.forEach(taskName => {
@@ -722,4 +747,7 @@ userBtn.addEventListener('click', e => {
     loginAndLogout(false);
 });
 
-
+// 완료한 작업 보기 클릭
+completedTaskBtn.addEventListener('click', e => {
+    e.target.nextElementSibling.classList.toggle('hidden');
+});
