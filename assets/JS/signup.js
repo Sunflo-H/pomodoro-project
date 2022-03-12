@@ -17,11 +17,12 @@ const email = document.querySelector('#input-email');
 */
 // 회원이 0명, 즉 로컬저장소에 아직 회원저장공간이 없는경우에는 아무값이나 넣어서 만든다.
 if(localStorage.getItem('users') === null) {
-    localStorage.setItem('users',JSON.stringify("비어있음"));
+    let arr = [];
+    localStorage.setItem('users',JSON.stringify(arr));
 }
 let users = JSON.parse(localStorage.getItem('users'));
+console.log(users === []);
 
-console.log(users);
 
 let check = {
     id: false,
@@ -42,11 +43,11 @@ class User {
             taskToComplete: 0,
             completedTime: 0,
             completedTask: 0
-        }
+        };
         this.alarm = {
             pomodoro: "",
             break: ""
-        }
+        };
         this.task = [
             {
                 key: "",
@@ -54,7 +55,8 @@ class User {
                 optionTime: "",
                 runTime: { current: "", max: "" }
             }
-        ]
+        ];
+        this.breakTime = "";
     }
 }
 
@@ -77,17 +79,19 @@ function passCheck(item) {
     } else {
         let overlap;
         console.log(users);
-        if (users === "비어있음") overlap = false;
+        console.log(users === []);
+        if (users === []) overlap = false;
         else {
             users.forEach(user => {
-                if (user.item === item.value) {
-                    overlap = true;
+                switch (item) {
+                    case id:    if (user.id === item.value) overlap = true; break;
+                    case nickname:  if (user.nickname === item.value) overlap = true; break;
+                    case email: if (user.email === item.value) overlap = true; break;
                 }
             });
         }
 
         if (overlap) {
-            console.log("오버랩 트루");
             item.nextElementSibling.classList.remove('hidden');
             item.nextElementSibling.innerText = `중복된 ${text}입니다.`
             switch (item) {
@@ -97,14 +101,12 @@ function passCheck(item) {
             }
             console.log(check);
         } else {
-            console.log("오버랩 거짓");
             item.nextElementSibling.classList.add('hidden');
             switch (item) {
                 case id: check.id = true; break;
                 case nickname: check.nickname = true; break;
                 case email: check.email = true; break;
             }
-            console.log(check);
         }
     }
 }

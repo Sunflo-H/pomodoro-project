@@ -120,35 +120,113 @@ function init() {
     showTimer(min);
     makeOptionItem();
     getLoginState();
-    if(loginState) {
+    if (loginState) {
         showUserBtn();
         user = JSON.parse(localStorage.getItem('user'));
+        getUserInfo();
+        showUserTask();
     }
 
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
+function showUserTask(){
 
+}
+//info말고 task만 따로 가져오는걸로 하는게 좋을려나
+function getUserInfo() {
+    user.task.forEach(task => {
+        if(task.name === "") return;
+        runTimes.push({current: task.runTime.current, max: task.runTime.max});
+        let html = `<li>
+                        <div class="flex-container">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="task-name" data-time=${task.optionTime}>${task.name}</span>
+                        </div>
+                        <div>
+                            <span class="run-times">0/${task.runTime.max}</span>
+                            <button><i class="fa fa-trash"></i></button>
+                        </div>
+                    </li>`
+        taskListContainer.insertAdjacentHTML('beforeend', html);
+
+        const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
+        const taskName = taskListContainer.querySelectorAll('.task-name');
+
+        showTaskList(true);
+
+        // 새로 생긴 html에 이벤트를 등록해주기
+        taskName.forEach(taskName => {
+            taskName.addEventListener('click', e => {
+                if (run) {
+                    let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
+                    if (question) {
+                        changeTask(taskName);
+                    }
+                    else {
+                        console.log("취소");
+                        run = true;
+                        return;
+                    }
+                } else {
+                    changeTask(taskName);
+                }
+            })
+        });
+
+        completeTaskBtn.forEach(btn => {
+            btn.addEventListener('click', completeTaskBtnHandler);
+        });
+    })
+    
+}
 function updateUser(taskKey, taskName, taskTime, maxRunTime, currentRunTime = 0) {
-    user.task[taskKey].key = taskKey;
-    user.task[taskKey].name = taskName;
-    user.task[taskKey].optionTime = taskTime;
-    user.task[taskKey].runTime.max = maxRunTime;
-    user.task[taskKey].runTime.current = currentRunTime;
+    let taskInfo = {
+        key: taskKey,
+        name: taskName,
+        optionTIme: taskTime,
+        runTime: {
+            current: currentRunTime,
+            max: maxRunTime
+        }
+    }
+    console.log(user);
+    switch (arguments.length) {
+        case 1: user.task[taskKey].runTime.current++;
+                break;
+        case 4:
+        case 5: if (user.task[taskKey] === undefined){
+                    user.task.push(taskInfo);
+                } else {
+                    user.task[taskKey].key = taskKey;
+                    user.task[taskKey].name = taskName;
+                    user.task[taskKey].optionTime = taskTime;
+                    user.task[taskKey].runTime.max = maxRunTime;
+                    user.task[taskKey].runTime.current = currentRunTime;
+                }
+                break;
+    }
+    
     user.stats.estimatedTime = stats.estimatedTime;
     user.stats.taskToComplete = stats.taskToComplete;
     user.stats.completedTime = stats.completedTime;
     user.stats.completedTask = stats.completedTask;
 
-    localStorage.setItem('user',JSON.stringify(user));
+    localStorage.setItem('user', JSON.stringify(user));
+    let users = JSON.parse(localStorage.getItem('users'));
+    console.log(users);
+    let i = users.findIndex(users => users.id === user.id);
+    console.log(i);
+    users[0] = user;
+    localStorage.setItem('users', JSON.stringify(users));
 }
 
 // 로그아웃 -> 로그인상태는 false, localStorage의 user 삭제
 function loginAndLogout(boolean) {
     loginState = boolean;
-    
+
     if (loginState) { // 로그인
         let users = JSON.parse(localStorage.getItem('users'));
-        if(users === null) {
+        if (users === null) {
             alert("입력하신 정보가 올바르지 않습니다.");
             return;
         }
@@ -158,8 +236,10 @@ function loginAndLogout(boolean) {
         if (i !== -1) {
             user = users[i];
             localStorage.setItem('loginState', loginState);
-            localStorage.setItem('user',JSON.stringify(user));
+            localStorage.setItem('user', JSON.stringify(user));
             showUserBtn();
+            console.log("두번실행됨??");
+            getUserInfo();
             alert("로그인 되었습니다.");
             modalBackground.classList.add("hidden");
             loginContainer.classList.add('hidden');
@@ -168,10 +248,18 @@ function loginAndLogout(boolean) {
         }
     }
     else { // 로그아웃
+        let length = taskListContainer.querySelectorAll('li').length;
+        for(let i = 0; i<length; i++) {
+            let li = taskListContainer.querySelector('li');
+            taskListContainer.removeChild(li);
+        }
+        
+        showTaskList(false);
         localStorage.setItem('loginState', loginState);
         localStorage.removeItem('user');
         showLoginBtn();
         alert("로그아웃 되었습니다.");
+
     }
 }
 
@@ -190,7 +278,7 @@ function showLoginBtn() {
 function getLoginState() {
     let state = localStorage.getItem('loginState');
     switch (state) {
-        case "null": 
+        case "null":
         case "false": loginState = false; break;
         case "true": loginState = true; break;
     }
@@ -239,9 +327,8 @@ function timer() {
 
 
 function completePomodoro(taskName) {
-    // 완료한 포모도로의 taskName을 받아
-    // taskList에서 taskName과 이름이 같은 task를 찾아
-    // 진행해야할 pomodoro 카운트를 1 증가
+    // 완료한 포모도로의 taskName을 받아 taskList에서 taskName과 이름이 같은 task를 찾아서
+    // 완료한 pomodoro의 runTime.current를 1 증가
     let taskList = taskListContainer.querySelectorAll('li');
     let taskListArr = [...taskList];
     let index = 0;
@@ -262,9 +349,10 @@ function completePomodoro(taskName) {
     // 완료한 시간
     updateCompletedTime();
 
-    // 로그인중인 유저 정보 업데이트
-    // 여기서 런타임을 증가시키는데 이거 하기 전에 작업을 담는 기능을 먼저 만들자
-    updateLogginUser();
+    // 유저 정보 업데이트
+    // task는 안건드려.. 통계는 자동으로 업데이트, runTime만 좀 어떻게 해주면 좋겠는데
+    // 많은 파라미터중에서 어떻게 runTime만 할 수 있을까
+    updateUser(index);
 
     // audio.play();
     run = false;
@@ -523,33 +611,29 @@ addTaskBtn.addEventListener('click', e => {
                 </li>`
 
     taskListContainer.insertAdjacentHTML('beforeend', html);
-    
+
     const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
     const taskName = taskListContainer.querySelectorAll('.task-name');
     const li = taskListContainer.querySelectorAll('li');
-    
+
     // CSS
     breakTimeState ?
         li.forEach(li => li.style.color = BLUE) :
         li.forEach(li => li.style.color = RED);
-        
-        // 예정시간 증가
-        updateEstimatedTime("plus");
-        
-        // 완료할 작업 증가
-        stats.taskToComplete++;
-        taskToComplete.innerText = stats.taskToComplete;
-        
-        // runTimes에 추가 
-        runTimes.push({ current: 0, max: count.stopwatch });
-        
-        console.log(JSON.parse(localStorage.getItem('users')));
-        console.log(user);
-        // 통계정보와 task정보를 user에 저장, task - name, time, runtime
-        updateUser(runTimes.length-1, inputTask.value, optionTime.pomodoro, count.stopwatch);
-        console.log(user.stats);
-    console.log(user);
-    
+
+    // 예정시간 증가
+    updateEstimatedTime("plus");
+
+    // 완료할 작업 증가
+    stats.taskToComplete++;
+    taskToComplete.innerText = stats.taskToComplete;
+
+    // runTimes에 추가 
+    runTimes.push({ current: 0, max: count.stopwatch });
+
+    // 통계정보와 task정보를 user에 저장, task정보 = key, name, time, runtime
+    updateUser(runTimes.length - 1, inputTask.value, optionTime.pomodoro, count.stopwatch);
+
     inputTask.value = "";
     showTaskList(true);
     updateStopwatchCount("reset");
@@ -573,7 +657,7 @@ addTaskBtn.addEventListener('click', e => {
         })
     });
 
-    completeTaskBtn.forEach((btn, i) => {
+    completeTaskBtn.forEach(btn => {
         btn.addEventListener('click', completeTaskBtnHandler);
     });
 });
@@ -739,7 +823,7 @@ loginContainerCloseBtn.addEventListener('click', e => {
     e.target.parentNode.parentNode.parentNode.classList.add("hidden");
 });
 
-// login 클릭 
+// login 모달의 login 버튼 클릭 
 login.addEventListener('click', e => loginAndLogout(true));
 
 // user 클릭
