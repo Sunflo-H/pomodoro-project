@@ -52,7 +52,7 @@ class User {
             {
                 key: "",
                 name: "",
-                optionTime: "",
+                time: "",
                 runTime: { current: "", max: "" }
             }
         ];
