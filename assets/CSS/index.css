@@ -184,20 +184,21 @@ main {
   top: -65%;
 }
 /* task list */
-.task-container > ul {
-  width: 100%;
-  list-style: none;
-  margin-top: 20px;
-}
-.task-container > ul > span {
+.task-container > div > span {
   display: block;
   margin-top: 10px;
   font-weight: bold;
   border-bottom: 3px solid #eee;
   padding-bottom: 5px;
 }
+.task-container > div > ul,
+.completed-task-container > ul {
+  width: 100%;
+  list-style: none;
+}
 
-.task-container > ul > li {
+.task-container > div > ul > li ,
+.completed-task-container > ul > li{
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -208,17 +209,19 @@ main {
   color: var(--pomodoro-background);
   font-weight: bold;
 }
-.task-container > ul > li > .flex-container{
+.task-container > div > ul > li > .flex-container,
+.completed-task-container > ul > li > .flex-container{
   flex: 1;
   align-items: center;
-
 }
-.task-container > ul > li > .flex-container > i{
+.task-container > div > ul > li > .flex-container > i,
+.completed-task-container > ul > li > .flex-container > i{
   cursor: pointer;
   font-size: 16px;
   margin-right: 5px;
 }
-.task-container > ul > li > .flex-container > .task-name{
+.task-container > div > ul > li > .flex-container > .task-name,
+.completed-task-container > ul > li > .flex-container > .task-name{
   display: -webkit-box;
   flex: 1;
   -webkit-box-orient: vertical;
@@ -226,8 +229,8 @@ main {
   overflow: hidden;
   cursor: pointer;
 }
-.task-container button {
-  /* width: 20px; */
+.task-container button,
+.completed-task-container button {
   cursor: pointer;
   color: var(--black1A);
   font-size: 16px;
@@ -236,10 +239,14 @@ main {
   border-radius: 5px;
   margin-left: 10px;
 }
-
-.completed-task-container {
-  border: 5px solid green;
-  text-align: center;
+.completed-task-btn {
+  display: block;
+  margin: 10px auto;
+  font-size: 0.7rem;
+  border: none;
+  background-color: var(--white1);
+  color: gray;
+  cursor: pointer;
 }
 /* 트랜지션 필요한 태그들 */
 /* 

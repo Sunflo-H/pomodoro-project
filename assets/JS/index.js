@@ -32,7 +32,8 @@ const timerStartBtn = document.querySelector('#btn-timer-start');
 // task
 const addTaskBtn = document.querySelector('#btn-add-task');
 const inputTask = document.querySelector('#input-task');
-const taskListContainer = document.querySelector('.task-container > ul');
+const taskListBox = document.querySelector('.task-list-box');
+const taskListContainer = document.querySelector('.task-container > div > ul');
 const currentTaskName = document.querySelector('#current-task-name');
 // stopwatch icon setting
 const stopwatchIcon = document.querySelectorAll('.task-container > .flex-container > .fa-stopwatch');
@@ -55,6 +56,8 @@ const reportBtn = document.querySelector('#report');
 const userBtn = document.querySelector('#user');
 //completed task
 const completedTaskBtn = document.querySelector('.completed-task-btn');
+const completedTaskListContainer = document.querySelector('.completed-task-container > ul');
+console.log(completedTaskListContainer);
 //modal
 const modalBackground = document.querySelector('.modal-background');
 //modal - setting
@@ -261,14 +264,15 @@ function updateUser2(task) {
         case 5: if (user.task[taskKey] === undefined){
                     user.task.push(_task);
                 } else {
-                    user.task[taskKey].key = taskKey;
-                    user.task[taskKey].name = taskName;
-                    user.task[taskKey].time = taskTime;
-                    user.task[taskKey].runTime.max = maxRunTime;
-                    user.task[taskKey].runTime.current = currentRunTime;
+                    
                 }
                 break;
     }
+    user.task[taskKey].key = _task.key;
+    user.task[taskKey].name = _task.name;
+    user.task[taskKey].time = _task.time;
+    user.task[taskKey].runTime.max = _task.runTime.max;
+    user.task[taskKey].runTime.current = _task.runTime.current;
     
     user.stats.estimatedTime = stats.estimatedTime;
     user.stats.taskToComplete = stats.taskToComplete;
@@ -278,7 +282,7 @@ function updateUser2(task) {
     localStorage.setItem('user', JSON.stringify(user));
     let users = JSON.parse(localStorage.getItem('users'));
     console.log(users);
-    let i = users.findIndex(users => users.id === user.id);
+    let i = users.findIndex(users => users.key === user.key);
     console.log(i);
     users[i] = user;
     localStorage.setItem('users', JSON.stringify(users));
@@ -312,10 +316,8 @@ function loginAndLogout(boolean) {
         }
     }
     else { // 로그아웃
-        let length = taskListContainer.querySelectorAll('li').length;
-        for(let i = 0; i<length; i++) {
-            let li = taskListContainer.querySelector('li');
-            taskListContainer.removeChild(li);
+        while (taskListContainer.hasChildNodes()) {
+            taskListContainer.removeChild(taskListContainer.firstChild);
         }
         
         showTaskList(false);
@@ -387,23 +389,9 @@ function timer() {
 
 
 
-function completePomodoro(taskName) {
-    // 완료한 포모도로의 taskName을 받아 
-    // taskList(<li>들)에서 taskName과 이름이 같은 task(<li>)를 찾아서
-    // 완료한 pomodoro의 tasks[i].runTime.current를 1 증가
-    const taskList = taskListContainer.querySelectorAll('li');
-    let taskListArr = [...taskList];
-    let index;
-    let foundTask = taskListArr.find((task, i) => {
-        const findTaskName = task.querySelector('.task-name');
-        index = i;
-        return taskName === findTaskName.innerText;
-    });
-    let foundTaskRunTimes = foundTask.querySelector('.run-times');
-
-    // 0번째 task면 task[0].runTime.current 의 값 증가    
-    tasks[index].runTime.current++;
-    foundTaskRunTimes.innerText = `${tasks[index].runTime.current}/${tasks[index].runTime.max}`
+function completePomodoro(keySelectedTask) {
+    tasks.find(task => task.key === keySelectedTask).runTime.current++;
+    showTaskList(true);
 
     //포모도로 완료 -> 예정시간은 완료한만큼 줄고, 완료한 시간은 증가한다.
     // 예정시간
@@ -421,21 +409,12 @@ function completePomodoro(taskName) {
     timerStartBtn.innerText = "START";
 }
 
-function changeTask(taskName) {
-    run = false;
-    clearInterval(timeInterval);
-    currentTaskName.innerText = taskName.innerText;
-    currentTaskName.setAttribute('data-time', taskName.getAttribute('data-time'));
-    timerStartBtn.innerText = "START"
-    min = taskName.getAttribute('data-time');
-    showTimer(min);
-}
-
-function changeTask2(taskKey) {
+function changeTask(taskKey) {
     let selectedTask = tasks.find(task => {
         return taskKey === task.key;
     })
     console.log(selectedTask);
+    keySelectedTask = selectedTask.key;
     run = false;
     clearInterval(timeInterval);
     currentTaskName.innerText = selectedTask.name;
@@ -525,30 +504,119 @@ function makeOptionItem() {
         }
     })
 }
+function showCompletedTaskList() {
+    while (completedTaskListContainer.hasChildNodes()) {
+        completedTaskListContainer.removeChild(completedTaskListContainer.firstChild);
+    }
+    tasks.forEach(task => {
+        if(!task.complete) return;
+        let html = `<li>
+                        <div class="flex-container">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="task-name" data-time=${task.time} data-key=${task.key}>${task.name}</span>
+                        </div>
+                        <div>
+                            <span class="run-times">${task.runTime.current}/${task.runTime.max}</span>
+                            <button><i class="fa fa-trash"></i></button>
+                        </div>
+                    </li>`
 
+        completedTaskListContainer.insertAdjacentHTML('beforeend', html);
+    })    
+}
 function showTaskList(boolean) {
     if (boolean) {
-        taskListContainer.classList.remove('hidden');
+        taskListBox.classList.remove('hidden');
     } else {
-        taskListContainer.classList.add('hidden');
+        taskListBox.classList.add('hidden');
     }
+    // 이전에 있던 taskList들을 삭제
+    while (taskListContainer.hasChildNodes()) {
+        taskListContainer.removeChild(taskListContainer.firstChild);
+    }
+    // html파일에 새 taskList 생성
+    tasks.forEach(task => {
+        if(task.complete) return;
+        let html = `<li>
+                        <div class="flex-container">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="task-name" data-time=${task.time} data-key=${task.key}>${task.name}</span>
+                        </div>
+                        <div>
+                            <span class="run-times">${task.runTime.current}/${task.runTime.max}</span>
+                            <button><i class="fa fa-trash"></i></button>
+                        </div>
+                    </li>`
+
+        taskListContainer.insertAdjacentHTML('beforeend', html);
+    })    
+
+    // 새로 생긴 html에 이벤트를 등록해주기
+    const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
+    const taskNames = taskListContainer.querySelectorAll('.task-name');
+    const li = taskListContainer.querySelectorAll('li');
+
+    // 작업의 이름을 클릭하면 해당 작업의 key를 받아온다.
+    // key를 받아 tasks에서 일치하는 작업을 찾는다.
+    // 찾은 작업의 이름을 currentTaskName.innerText로 나타낸다.
+    taskNames.forEach(taskName => {
+        taskName.addEventListener('click', e => {
+            let _key = taskName.getAttribute('data-key');
+            if (run) {
+                let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
+                if (question) {
+                    changeTask(_key);
+                }
+                else {
+                    run = true;
+                    return;
+                }
+            } else {
+                changeTask(_key);
+            }
+        })
+    });
+
+    completeTaskBtn.forEach(btn => {
+        btn.addEventListener('click', completeTaskBtnHandler);
+    });
+
+    // CSS
+    breakTimeState ?
+    li.forEach(li => li.style.color = BLUE) :
+    li.forEach(li => li.style.color = RED);
+    
+    // 통계정보와 task정보를 user에 저장, task정보 = key, name, time, runtime
+    if(loginState) {
+        // updateUser(i, tasks[i].name, tasks[i].time, tasks[i].runTime.max);
+        updateUser2(tasks[i]);
+    }
+    inputTask.value = "";
 }
 
 // 통계 업데이트 함수
 function updateEstimatedTime(order) {
-    // 현재 task로 하는게 가장 정확하나 task가 추가될때 실행되기 때문에
-    // optionTime.pomodoro로 해도 기능은 같다.
-    let taskPer5Mins_index = optionTime.pomodoro / 5 - 1;
+    console.log(taskPer5Mins);
+    console.log("실행");
+
+    let taskPer5Mins_index = tasks[tasks.length-1].time / 5 - 1;
     let time = 0;
     let temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; //원래 배열을 복구하기 위한 배열
     let roofState = 1;
-    // 추가된 task의 pomodoro가 몇분짜리인지 찾아, 횟수만큼 taskPer5Mins에 추가
+    // 추가된 task의 time이 몇분짜리인지 찾아, 총횟수만큼 taskPer5Mins에 추가
     if (order === "plus")
-        for (let i = 0; i < count.stopwatch; i++) {
+        for (let i = 0; i < tasks[tasks.length-1].runTime.max; i++) {
             taskPer5Mins[taskPer5Mins_index]++;
         }
-    // 삭제할 task의 pomodoro가 몇분짜리인지 찾아, 한번 감소
-    if (order === "minus") taskPer5Mins[taskPer5Mins_index]--;
+    // 완료한 task의 time이 몇분짜리인지 찾아, 한번 감소
+    else if (order === "minus") taskPer5Mins[taskPer5Mins_index]--;
+    else {
+        let _task = tasks.find(task => task.key === order);
+        let count = _task.runTime.max - _task.runTime.current;
+        taskPer5Mins[taskPer5Mins_index] -= count;
+
+    }
+    
     // 예정시간도 구하고, taskPer5Mins를 보존하기위한 temp를 구한다.
     while (roofState !== -1) {
         let i = taskPer5Mins.findIndex(item => {
@@ -563,6 +631,7 @@ function updateEstimatedTime(order) {
     }
     stats.estimatedTime = Number((time / HOUR).toFixed(1)); //소수점 한자리 반올림
     estimatedTime.innerText = (stats.estimatedTime).toFixed(1); //부동소수점때문에 한번더 반올림
+    if(estimatedTime.innerText === "0.0") estimatedTime.innerText = 0;
     taskPer5Mins = [...temp];
 }
 function updateCompletedTime() {
@@ -585,45 +654,43 @@ function updateCompletedTime() {
     }
     stats.completedTime = (time / HOUR).toFixed(1);
     completedTime.innerText = Number(stats.completedTime).toFixed(1);
+    if(completedTime.innerText === "0.0") completedTime.innerText = 0;
     completedTimePer5Mins = [...temp];
 }
 function updateCompleteTask() {
+    console.log("완료할 작업 실행");
+    console.log(stats);
     // 완료할 작업
     stats.taskToComplete--;
+    console.log(stats.taskToComplete);
     taskToComplete.innerText = stats.taskToComplete;
     // 완료한 작업
     stats.completedTask++;
     completedTask.innerText = stats.completedTask;
+
+    console.log(stats);
 }
 function taskNameHandler(e) {
     currentTaskName.innerText = task.innerText;
-
 }
 function completeTaskBtnHandler(e) {
-    
-    // 누르면 완료
-    // 현재 목록에서 사라지고  => 완료시 사라지는 기능 여기서 구현
-    // 완료 목록에서 볼수 있다. => 완료 목록 클릭시 tasks에서 값 가져와서 보여주기 즉 다른곳에서 구현
-    // e.target.parentNode.parentNode.style.display = "none";
-    console.log(e.target);
-    console.log(e.target.parentNode);
+    let _key = e.target.nextElementSibling.getAttribute('data-key');
+    tasks.find(task => task.key === _key).complete = true;
+
+    showTaskList(true);
 
     // 예정 시간 줄어들어
-
-    // 완료할 작업 줄어들어
-
+    updateEstimatedTime(_key);
     // 완료한 시간 올라가
+    updateCompletedTime();
+    // 완료할 작업 줄어들어 // 완료한 작업 올라가
+    updateCompleteTask();
 
-    // 완료한 작업 올라가
-    stats.taskToComplete--;
-    taskToComplete.innerText = stats.taskToComplete;
-    // 누르면 모든 btn이 다 눌려..
-    if (stats.taskToComplete === 0) {
+    let completeAll = tasks.findIndex(task => task.complete === false);
+    if(completeAll === -1) {
         showTaskList(false);
     }
 }
-
-
 
 function showTimer(min, sec = "00") {
     time.innerText = `${min} : ${sec}`;
@@ -684,77 +751,79 @@ addTaskBtn.addEventListener('click', e => {
         complete: false,
         key: getNewKey()
     })
-    let i = tasks.length - 1;
-    let html = `<li>
-                    <div class="flex-container">
-                        <i class="fas fa-check-circle"></i>
-                        <span class="task-name" data-time=${tasks[i].time} data-key=${tasks[i].key}>${tasks[i].name}</span>
-                    </div>
-                    <div>
-                        <span class="run-times">0/${tasks[i].runTime.max}</span>
-                        <button><i class="fa fa-trash"></i></button>
-                    </div>
-                </li>`
+    // let i = tasks.length - 1;
+    // let html = `<li>
+    //                 <div class="flex-container">
+    //                     <i class="fas fa-check-circle"></i>
+    //                     <span class="task-name" data-time=${tasks[i].time} data-key=${tasks[i].key}>${tasks[i].name}</span>
+    //                 </div>
+    //                 <div>
+    //                     <span class="run-times">0/${tasks[i].runTime.max}</span>
+    //                     <button><i class="fa fa-trash"></i></button>
+    //                 </div>
+    //             </li>`
 
-    taskListContainer.insertAdjacentHTML('beforeend', html);
+    // taskListContainer.insertAdjacentHTML('beforeend', html);
 
-    // 새로 생긴 html에 이벤트를 등록해주기
-    const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
-    const taskNames = taskListContainer.querySelectorAll('.task-name');
-    const li = taskListContainer.querySelectorAll('li');
+    // // 새로 생긴 html에 이벤트를 등록해주기
+    // const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
+    // const taskNames = taskListContainer.querySelectorAll('.task-name');
+    // const li = taskListContainer.querySelectorAll('li');
 
-    // 작업의 이름을 클릭하면 해당 작업의 key를 받아온다.
-    // key를 받아 tasks에서 일치하는 작업을 찾는다.
-    // 찾은 작업의 이름을 currentTaskName.innerText로 나타낸다.
-    taskNames.forEach(taskName => {
-        taskName.addEventListener('click', e => {
-            let _key = taskName.getAttribute('data-key');
-            if (run) {
-                let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
-                if (question) {
-                    // changeTask(taskName);
-                    changeTask2(_key);
+    // // 작업의 이름을 클릭하면 해당 작업의 key를 받아온다.
+    // // key를 받아 tasks에서 일치하는 작업을 찾는다.
+    // // 찾은 작업의 이름을 currentTaskName.innerText로 나타낸다.
+    // taskNames.forEach(taskName => {
+    //     taskName.addEventListener('click', e => {
+    //         let _key = taskName.getAttribute('data-key');
+    //         if (run) {
+    //             let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
+    //             if (question) {
+    //                 changeTask(_key);
 
-                }
-                else {
-                    run = true;
-                    return;
-                }
-            } else {
-                // changeTask(taskName);
-                changeTask2(_key);
-            }
-        })
-    });
+    //             }
+    //             else {
+    //                 run = true;
+    //                 return;
+    //             }
+    //         } else {
+    //             changeTask(_key);
+    //         }
+    //     })
+    // });
 
-    completeTaskBtn.forEach(btn => {
-        btn.addEventListener('click', completeTaskBtnHandler);
-    });
+    // completeTaskBtn.forEach(btn => {
+    //     btn.addEventListener('click', completeTaskBtnHandler);
+    // });
 
-    // CSS
-    breakTimeState ?
-    li.forEach(li => li.style.color = BLUE) :
-    li.forEach(li => li.style.color = RED);
+    // // CSS
+    // breakTimeState ?
+    // li.forEach(li => li.style.color = BLUE) :
+    // li.forEach(li => li.style.color = RED);
     
+    // // 예정시간 증가
+    // updateEstimatedTime("plus");
+
+    // // 완료할 작업 증가
+    // stats.taskToComplete++;
+    // taskToComplete.innerText = stats.taskToComplete;
+    
+    // // 통계정보와 task정보를 user에 저장, task정보 = key, name, time, runtime
+    // if(loginState) {
+    //     // updateUser(i, tasks[i].name, tasks[i].time, tasks[i].runTime.max);
+    //     updateUser2(tasks[i]);
+    // }
+    // console.log(tasks);
+    // inputTask.value = "";
+
     // 예정시간 증가
     updateEstimatedTime("plus");
 
     // 완료할 작업 증가
     stats.taskToComplete++;
     taskToComplete.innerText = stats.taskToComplete;
-    
-    // 통계정보와 task정보를 user에 저장, task정보 = key, name, time, runtime
-    if(loginState) {
-
-        // updateUser(i, tasks[i].name, tasks[i].time, tasks[i].runTime.max);
-        updateUser2(tasks[i]);
-    }
-    console.log(tasks);
-    inputTask.value = "";
     showTaskList(true);
     updateStopwatchCount("reset");
-
-    
 });
 
 // 인풋의 stopwatch 아이콘을 누르면 색이 변하고 count.stopwatch가 증감한다.
@@ -928,5 +997,6 @@ userBtn.addEventListener('click', e => {
 
 // 완료한 작업 보기 클릭
 completedTaskBtn.addEventListener('click', e => {
-    e.target.nextElementSibling.classList.toggle('hidden');
+    completedTaskListContainer.classList.toggle('hidden');
+    showCompletedTaskList();
 });
