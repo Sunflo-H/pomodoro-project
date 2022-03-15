@@ -44,16 +44,18 @@ class User {
             completedTime: 0,
             completedTask: 0
         };
+        this.taskPer5mins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         this.alarm = {
             pomodoro: "",
             break: ""
         };
-        this.task = [
+        this.tasks = [
             {
-                key: "",
                 name: "",
                 time: "",
-                runTime: { current: "", max: "" }
+                runTime: { current: "", max: "" },
+                key: "",
+                complete: "",
             }
         ];
         this.breakTime = "";

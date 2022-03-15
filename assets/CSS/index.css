@@ -239,7 +239,7 @@ main {
   border-radius: 5px;
   margin-left: 10px;
 }
-.completed-task-btn {
+.show-completed-task-btn {
   display: block;
   margin: 10px auto;
   font-size: 0.7rem;
