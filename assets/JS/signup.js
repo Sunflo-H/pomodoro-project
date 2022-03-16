@@ -44,11 +44,12 @@ class User {
             completedTime: 0,
             completedTask: 0
         };
-        this.taskPer5mins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this.total
         this.alarm = {
             pomodoro: "",
             break: ""
         };
+        this.sumAllTimes = ""
         this.tasks = [
             {
                 name: "",
