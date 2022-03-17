@@ -104,7 +104,19 @@ init();
 function init() {
     console.log("초기화 단계 시작 합니다.");
     updateStopwatchCount(0);
-    showTimer(min);
+    min = JSON.parse(localStorage.getItem('currentTimer')).min;
+    sec = JSON.parse(localStorage.getItem('currentTimer')).sec;
+    if(min !== null && sec !== null) {
+        let selectedTask = JSON.parse(localStorage.getItem('currentTask'));
+        if(selectedTask !== null) {
+            currentTaskName.innerText = selectedTask.name;
+            currentTaskName.setAttribute('data-time', selectedTask.time);
+            currentTaskName.setAttribute('data-key', selectedTask.key);
+            keySelectedTask = selectedTask.key;
+        }
+        showTimer(min, sec);
+    }
+    else showTimer(min);
     makeOptionItem();
     getLoginState();
     if (loginState) {
@@ -315,7 +327,9 @@ function timer() {
                 sec = "0" + sec; //"01"초... "09"초를 표현
             }
         }
+        localStorage.setItem('currentTimer', JSON.stringify({min: min, sec: sec}));
         showTimer(min, sec);
+        
     }, 1000)
 }
 
@@ -341,6 +355,7 @@ function completePomodoro(keySelectedTask) {
     run = false;
     clearInterval(timeInterval);
     timerStartBtn.innerText = "START";
+    localStorage.setItem('currentTimer', JSON.stringify({min: "00", sec: "00"}));
 }
 
 function changeTask(taskKey) {
@@ -356,6 +371,7 @@ function changeTask(taskKey) {
     timerStartBtn.innerText = "START"
     min = selectedTask.time;
     showTimer(min);
+    localStorage.setItem('currentTask', JSON.stringify({name: selectedTask.name, time: selectedTask.time, key: selectedTask.key}));
 }
 
 function changeToPomodoro() {
