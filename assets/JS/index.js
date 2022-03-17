@@ -1,28 +1,12 @@
 'use strict'
-//해야 할 일
-
-//report , setting, login기능 만들기
-//알람음 => 여러 알람음 입력하고 세팅가능하게, 타이머 완료시 알람음
-//백엔드 필요없는거부터 해서 
-//setting 먼저
-//초기 시간 (이니셜 타임)을 가지고 처음에 보여지는 타이머 시간 표현해줘
-
-//initialTime과 이걸 세팅하는 함수가 필요한지 다 만들고나서 체크해보기
-// 해야할 것 : INITIAL_TIME은 나중에 lastTime으로 바꿔서 마지막 optionTime세팅한거를 제일 처음에 보여주도록 하자
-// footer 만들기
-
-//로그인 - 아이디, 비번중 아이디만 맞았을때 비밀번호를 확인하세요, 아이디도 틀리면 계정을 확인하세요.
-//회원가입 - 아이디(이메일) , 비밀번호, 비밀번호 재확인, 닉네임
-
 
 const RED = "var(--pomodoro-background)";
 const GRAY = "var(--black1A)";
 const BLUE = "var(--break-time-background)";
 const CONTAINER_BACKGROUND_COLOR = "var(--container-background)";
 const HOUR = 60;
-// 해야할 것 : INITIAL_TIME은 나중에 lastTime으로 바꿔서 마지막 optionTime세팅한거를 제일 처음에 보여주도록 하자
-const INITIAL_TIME = 1;
-const INITIAL_BREAK_TIME = 1;
+const INITIAL_TIME = "05";
+const INITIAL_BREAK_TIME = "05";
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -78,7 +62,7 @@ const login = loginContainer.querySelector('#login-button');
 let audio = new Audio('/audio/삐삐삐삐-삐삐삐삐 - 탁상시계알람.mp3');
 let run = false;
 let running = false;
-let min = INITIAL_TIME;
+let min = "00";
 let sec = "00";
 let timeInterval;
 let optionTime = {
@@ -90,7 +74,6 @@ let breakTimeState = false;
 let sumTaskTimes = 0;
 let sumCompletedTaskTimes = 0;
 
-// 통계 관련 객체
 let stats = {
     estimatedTime: 0,
     taskToComplete: 0,
@@ -118,12 +101,6 @@ let keySelectedTask; // 선택한 작업의 key
 
 init();
 
-function test() {
-    console.log(optionTime);
-    console.log(breakTimeState);
-
-}
-
 function init() {
     console.log("초기화 단계 시작 합니다.");
     updateStopwatchCount(0);
@@ -143,6 +120,10 @@ function init() {
     }
 
     // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
+}
+
+function showSelectedOptionTime(i, time) {
+    selected[i].innerText = `${time}분`;
 }
 
 function delBtnHandler(e) {
@@ -250,6 +231,8 @@ function loginAndLogout(boolean) {
         localStorage.removeItem('user');
         // 로그아웃할때 user에 저장할건 없나??
         showLoginBtn();
+        showSelectedOptionTime(0, INITIAL_TIME);
+        showSelectedOptionTime(1, INITIAL_BREAK_TIME);
         tasks = [];
         alert("로그아웃 되었습니다.");
     }
@@ -315,6 +298,8 @@ function timer() {
                     //포모도로 타이머 종료시 휴식시간으로 변경
                     completePomodoro(keySelectedTask);
                     changeToBreak();
+                    showTimer(optionTime.breakTime);
+                    return;
                 }
                 else {
                     //휴식시간 종료시 포모도로로 변경
@@ -362,12 +347,12 @@ function changeTask(taskKey) {
     let selectedTask = tasks.find(task => {
         return taskKey === task.key;
     })
-    console.log(selectedTask);
     keySelectedTask = selectedTask.key;
     run = false;
     clearInterval(timeInterval);
     currentTaskName.innerText = selectedTask.name;
     currentTaskName.setAttribute('data-time', selectedTask.time);
+    currentTaskName.setAttribute('data-key', selectedTask.key);
     timerStartBtn.innerText = "START"
     min = selectedTask.time;
     showTimer(min);
@@ -609,6 +594,7 @@ function completeTaskBtnHandler(e) {
 
 function showTimer(min, sec = "00") {
     console.log("타이머 html로 보여주는 함수 실행");
+    if(min.length === 1) min = `0${min}`;
     time.innerText = `${min} : ${sec}`;
 }
 
@@ -815,12 +801,21 @@ optionList.forEach((optionList, i) => {
         // i가 0이면 포모도로, 1이면 휴식 시간
         if (i === 0) {
             // 타이머가 실행 중이면 타이머의 시간에는 변화를 주지 않는다.
+            
+            optionTime.pomodoro = number;
+            showSelectedOptionTime(i, number);
+    
             if (!run) {
                 min = number;
+                if (currentTaskName.getAttribute('data-key') !== null) {
+                    currentTaskName.removeAttribute('data-key');
+                    currentTaskName.removeAttribute('data-time');
+                    currentTaskName.innerText = "새 작업을 입력해 주세요"
+                }
                 showTimer(min);
-                selected[i].innerText = `${number}분`;
+                // 현재 작업이 선택되어 있으면 작업빼버리고 옵션타임을 보여줘
+                // 선택 안되어 있으면 바로 옵션타임 보여줘
             }
-            optionTime.pomodoro = number;
         } else {
             optionTime.breakTime = number;
             selected[i].innerText = `${number}분`;
