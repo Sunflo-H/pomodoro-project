@@ -609,6 +609,12 @@ function showTimer(min, sec = "00") {
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   이벤트 리스너 목록   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//새로고침, 뒤로가기 경고
+window.addEventListener('beforeunload', e => {
+    e.preventDefault();
+    e.returnValue = '';    
+})
+
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
