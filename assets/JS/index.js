@@ -131,7 +131,6 @@ function init() {
         showStats();
     }
 
-    // setEstimatedTime(); //지금 선언하는게 지금은 의미 없는데, 백엔드 하고나면 의미 있을듯?
 }
 
 function showSelectedOptionTime(i, time) {
