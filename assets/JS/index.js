@@ -130,7 +130,6 @@ function init() {
         showTaskList(true);
         showStats();
     }
-
 }
 
 function showSelectedOptionTime(i, time) {
