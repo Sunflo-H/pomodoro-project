@@ -292,7 +292,7 @@ function timer() {
     return setInterval(function () {
         // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
         if (sec === "00") {
-            sec = 2; // 59
+            sec = 59; // 59
             min--;
             if (String(min).length === 1) {
                 min = "0" + min; //01분...09분을 표현하기 위함
