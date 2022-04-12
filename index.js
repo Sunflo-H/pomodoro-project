@@ -103,18 +103,9 @@ init();
 
 function init() {
     console.log("초기화 단계 시작 합니다.");
-    updateStopwatchCount(0);
-    if(min !== null && sec !== null) {
-        let selectedTask = JSON.parse(localStorage.getItem('currentTask'));
-        if(selectedTask !== null) {
-            currentTaskName.innerText = selectedTask.name;
-            currentTaskName.setAttribute('data-time', selectedTask.time);
-            currentTaskName.setAttribute('data-key', selectedTask.key);
-            keySelectedTask = selectedTask.key;
-        }
-        showTimer(min, sec);
-    }
-    else showTimer(min);
+    setStopwatchCount(0);
+    console.log(min);
+    showTimer(min);
     makeOptionItem();
     getLoginState();
     if (loginState) {
@@ -408,7 +399,8 @@ function changeToBreak() {
 }
 
 
-function updateStopwatchCount(param) {
+// "plus", "minus", "reset", 숫자를 파라미터로 받아 stopwatch 카운트를 세팅합니다.
+function setStopwatchCount(param) {
     console.log(`스톱워치 카운트 ${param} 으로 바꾸는 함수 실행`);
     if (param === "plus") {
         count.stopwatch++;
@@ -683,7 +675,7 @@ addTaskBtn.addEventListener('click', e => {
     showTaskList(true);
 
     console.log("스톱워치 카운트 reset 시키기");
-    updateStopwatchCount("reset");
+    setStopwatchCount("reset");
 });
 
 // 인풋의 stopwatch 아이콘을 누르면 색이 변하고 count.stopwatch가 증감한다.
@@ -697,12 +689,12 @@ stopwatchIcon.forEach(btn => {
         if (current.dataset.index === "0") {
             if (current.style.color === "" || current.style.color === GRAY) {
                 current.style.color = color;
-                updateStopwatchCount(Number(current.dataset.index) + 1);
+                setStopwatchCount(Number(current.dataset.index) + 1);
             } else if (current.style.color === color && (next.style.color === GRAY || next.style.color === "")) {
                 current.style.color = GRAY;
-                updateStopwatchCount(0);
+                setStopwatchCount(0);
             } else if (current.style.color === color && next.style.color === RED) {
-                updateStopwatchCount(Number(current.dataset.index) + 1);
+                setStopwatchCount(Number(current.dataset.index) + 1);
                 stopwatchCount.innerText = count.stopwatch;
                 // 5번째까지 눌려있는 상태에서 1번째꺼를 누르면 2,3,4,5 비활성화되는 반복문
                 while (next.dataset.index !== undefined) {
@@ -731,16 +723,16 @@ stopwatchIcon.forEach(btn => {
             if (next.style.color === GRAY || next.style.color === "") {
                 if (current.style.color == color) {
                     current.style.color = GRAY;
-                    updateStopwatchCount(Number(current.dataset.index));
+                    setStopwatchCount(Number(current.dataset.index));
                 } else {
                     current.style.color = color;
-                    updateStopwatchCount(Number(current.dataset.index) + 1);
+                    setStopwatchCount(Number(current.dataset.index) + 1);
                 }
             }
             if (next.style.color === color) {
                 // 5까지 눌려있는 상태에서 3을 누르면 4,5 비활성화되는 반복문
                 current = e.target;
-                updateStopwatchCount(Number(current.dataset.index) + 1);
+                setStopwatchCount(Number(current.dataset.index) + 1);
                 // current.
                 while (next.dataset.index !== undefined) {
                     current = next;
@@ -757,8 +749,8 @@ stopwatchFastSettingOpenBtn.addEventListener('click', e => {
     stopwatchFastSetting.classList.toggle('opacity-hide');
 });
 // stopwacth count 증감 버튼 클릭
-stopwatchCountPlusBtn.addEventListener('click', e => { updateStopwatchCount("plus"); });
-stopwatchCountMinusBtn.addEventListener('click', e => { updateStopwatchCount("minus"); });
+stopwatchCountPlusBtn.addEventListener('click', e => { setStopwatchCount("plus"); });
+stopwatchCountMinusBtn.addEventListener('click', e => { setStopwatchCount("minus"); });
 
 // pomodoro setting 열기
 settingBtn.addEventListener('click', e => {
