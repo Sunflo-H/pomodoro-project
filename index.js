@@ -103,10 +103,12 @@ init();
 
 function init() {
     console.log("초기화 단계 시작 합니다.");
+    // 타이머 관련 함수들
     showTimer(min);
     setStopwatchCount(0);
     makeOptionItem();
 
+    // 로그인 관련 함수들
     createEmptyUsers();
     createLoginState();
     if (getLoginState()) {
@@ -198,6 +200,7 @@ function updateUser() {
     users[i] = user;
     localStorage.setItem('users', JSON.stringify(users));
 }
+
 function login() {
     console.log("로그인 함수 실행");
     let users = JSON.parse(localStorage.getItem('users'));    
@@ -225,6 +228,7 @@ function logout() {
     while (taskListContainer.hasChildNodes()) {
         taskListContainer.removeChild(taskListContainer.firstChild);
     }
+    setStopwatchCount("reset");
     showTaskList(false);
     showStats(0);
     removeCompletedTaskList();
@@ -271,12 +275,15 @@ function showLoginBtn() {
     userBtn.innerHTML = "";
 }
 function createLoginState() {
+    console.log(localStorage.getItem('loginState'));
     if(localStorage.getItem('loginState') === null) {
+        console.log("로그인 스테이트 생성");
         localStorage.setItem('loginState', false);
     }
 }
 function getLoginState() {
-    return localStorage.getItem('loginState');
+    if(localStorage.getItem('loginState') === "true") return true;
+    else return false;
 }
 
 function timer() {
@@ -431,6 +438,7 @@ function setStopwatchCount(param) {
 }
 
 function makeOptionItem() {
+    console.log("세팅메뉴 옵션리스트 생성하는 함수 실행");
     optionList.forEach(optionList => {
         let optionItemTime = 5;
         while (optionItemTime <= 60) {
