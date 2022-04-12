@@ -104,9 +104,8 @@ init();
 
 function init() {
     console.log("초기화 단계 시작 합니다.");
-    setStopwatchCount(0);
-    console.log(min);
     showTimer(min);
+    setStopwatchCount(0);
     makeOptionItem();
     getLoginState();
     if (loginState) {
@@ -284,6 +283,7 @@ function getLoginState() {
         case "false": loginState = false; break;
         case "true": loginState = true; break;
     }
+    return loginState;
 }
 
 function timer() {
@@ -602,11 +602,8 @@ function completeTaskBtnHandler(e) {
 
 function showTimer(min, sec = "00") {
     console.log("타이머 html로 보여주는 함수 실행");
-    let stringMin = min.toString();
-    console.log(stringMin.length);
-    if(stringMin.length === 1) min = addChar_0(min);
-    console.log(min);
-    console.log(typeof(min));
+    //length를 얻기위한 문자열 변환
+    if(min.toString().length === 1) min = addChar_0(min);
     time.innerText = `${min} : ${sec}`;
 }
 
