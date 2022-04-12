@@ -5,8 +5,9 @@ const GRAY = "var(--black1A)";
 const BLUE = "var(--break-time-background)";
 const CONTAINER_BACKGROUND_COLOR = "var(--container-background)";
 const HOUR = 60;
-const INITIAL_TIME = "05";
+const INITIAL_POMODORO_TIME = "05";
 const INITIAL_BREAK_TIME = "05";
+const INITIAL_SEC = "00";
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -62,11 +63,11 @@ const login = loginContainer.querySelector('#login-button');
 let audio = new Audio('assets/audio/alarm1.mp3');
 let run = false;
 let running = false;
-let min = "00";
-let sec = "00";
+let min = INITIAL_POMODORO_TIME;
+let sec = INITIAL_SEC;
 let timeInterval;
 let optionTime = {
-    pomodoro: INITIAL_TIME,
+    pomodoro: INITIAL_POMODORO_TIME,
     breakTime: INITIAL_BREAK_TIME
 }
 let breakTimeState = false;
@@ -230,7 +231,7 @@ function loginAndLogout(boolean) {
         localStorage.removeItem('user');
         // 로그아웃할때 user에 저장할건 없나??
         showLoginBtn();
-        showSelectedOptionTime(0, INITIAL_TIME);
+        showSelectedOptionTime(0, INITIAL_POMODORO_TIME);
         showSelectedOptionTime(1, INITIAL_BREAK_TIME);
         tasks = [];
         alert("로그아웃 되었습니다.");
