@@ -16,6 +16,12 @@ const email = document.querySelector('#input-email');
 
 */
 // 회원이 0명, 즉 로컬저장소에 아직 회원저장공간이 없는경우에는 아무값이나 넣어서 만든다.
+function createEmptyUsers() {
+    if(localStorage.getItem('users') === null) {
+        let arr = [];
+        localStorage.setItem('users',JSON.stringify(arr));
+    }
+}
 if(localStorage.getItem('users') === null) {
     let arr = [];
     localStorage.setItem('users',JSON.stringify(arr));

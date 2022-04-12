@@ -36,7 +36,7 @@ const completedTime = statistics.querySelector('div:nth-child(3)>h1'); //완료�
 const completedTask = statistics.querySelector('div:nth-child(4)>h1'); //완료한 작업
 //header div
 const settingBtn = document.querySelector('#setting');
-const loginBtn = document.querySelector('#login');
+const login_div = document.querySelector('#login');
 const reportBtn = document.querySelector('#report');
 const userBtn = document.querySelector('#user');
 //completed task
@@ -57,7 +57,7 @@ const loginContainer = document.querySelector('.login-container');
 const loginContainerCloseBtn = loginContainer.querySelector('.close>i')
 const inputId = loginContainer.querySelector('#input-id');
 const inputPwd = loginContainer.querySelector('#input-pwd');
-const login = loginContainer.querySelector('#login-button');
+const loginBtn = loginContainer.querySelector('#login-button');
 
 
 let audio = new Audio('assets/audio/alarm1.mp3');
@@ -86,7 +86,6 @@ let count = {
     stopwatch: 0
 }
 
-let loginState;
 let user; // 로그인중인 사용자의 정보가 업데이트 될때마다 매번 저장하는 변수
 
 let completedTasks = [];
@@ -107,8 +106,10 @@ function init() {
     showTimer(min);
     setStopwatchCount(0);
     makeOptionItem();
-    getLoginState();
-    if (loginState) {
+
+    createEmptyUsers();
+    createLoginState();
+    if (getLoginState()) {
         showUserBtn();
         user = JSON.parse(localStorage.getItem('user'));
         console.log("초기화 단계에서 유저 task 가져옵니다.");
@@ -118,6 +119,13 @@ function init() {
         console.log("초기화 단계에서 작업리스트, 통계 html로 보여줍니다.");
         showTaskList(true);
         showStats();
+    }
+}
+
+function createEmptyUsers() {
+    if(localStorage.getItem('users') === null) {
+        let arr = [];
+        localStorage.setItem('users',JSON.stringify(arr));
     }
 }
 
@@ -190,57 +198,44 @@ function updateUser() {
     users[i] = user;
     localStorage.setItem('users', JSON.stringify(users));
 }
+function login() {
+    console.log("로그인 함수 실행");
+    let users = JSON.parse(localStorage.getItem('users'));    
+    let i = users.findIndex(user => (user.id === inputId.value) && (user.pwd === inputPwd.value));
 
-// 로그아웃 -> 로그인상태는 false, localStorage의 user 삭제
-function loginAndLogout(boolean) {
-    loginState = boolean;
+    if (i !== -1) {
+        user = users[i];
+        localStorage.setItem('loginState', true);
+        localStorage.setItem('user', JSON.stringify(user));
 
-    if (loginState) { // 로그인
-        console.log("로그인 함수 실행");
-        let users = JSON.parse(localStorage.getItem('users'));
-        if (users === null) {
-            alert("입력하신 정보가 올바르지 않습니다.");
-            return;
-        }
-        let i = users.findIndex(user => {
-            return (user.id === inputId.value) && (user.pwd === inputPwd.value);
-        })
-        if (i !== -1) {
-            
-            user = users[i];
-            localStorage.setItem('loginState', loginState);
-            localStorage.setItem('user', JSON.stringify(user));
-
-            showUserBtn();
-
-            getUserTask();
-            console.log(localStorage.getItem('users'));
-            showTaskList(true);
-            console.log(localStorage.getItem('users'));
-            alert("로그인 되었습니다.");
-            modalBackground.classList.add("hidden");
-            loginContainer.classList.add('hidden');
-        } else {
-            alert("입력하신 정보가 올바르지 않습니다.");
-        }
+        showUserBtn();
+        getUserTask();
+        showTaskList(true);
+        console.log(localStorage.getItem('users'));
+        alert("로그인 되었습니다.");
+        modalBackground.classList.add("hidden");
+        loginContainer.classList.add('hidden');
+    } else {
+        alert("입력하신 정보가 올바르지 않습니다.");
     }
-    else { // 로그아웃
-        console.log("로그아웃 함수 실행");
-        while (taskListContainer.hasChildNodes()) {
-            taskListContainer.removeChild(taskListContainer.firstChild);
-        }
-        showTaskList(false);
-        showStats(0);
-        removeCompletedTaskList();
-        localStorage.setItem('loginState', loginState);
-        localStorage.removeItem('user');
-        // 로그아웃할때 user에 저장할건 없나??
-        showLoginBtn();
-        showSelectedOptionTime(0, INITIAL_POMODORO_TIME);
-        showSelectedOptionTime(1, INITIAL_BREAK_TIME);
-        tasks = [];
-        alert("로그아웃 되었습니다.");
+}
+
+function logout() {
+    console.log("로그아웃 함수 실행");
+    while (taskListContainer.hasChildNodes()) {
+        taskListContainer.removeChild(taskListContainer.firstChild);
     }
+    showTaskList(false);
+    showStats(0);
+    removeCompletedTaskList();
+    localStorage.setItem('loginState', false);
+    localStorage.removeItem('user');
+    // 로그아웃할때 user에 저장할건 없나??
+    showLoginBtn();
+    showSelectedOptionTime(0, INITIAL_POMODORO_TIME);
+    showSelectedOptionTime(1, INITIAL_BREAK_TIME);
+    tasks = [];
+    alert("로그아웃 되었습니다.");
 }
 
 function showStats(num) {
@@ -265,25 +260,23 @@ function showStats(num) {
 
 function showUserBtn() {
     let user = JSON.parse(localStorage.getItem('user'));
-    loginBtn.classList.add('hidden');
+    login_div.classList.add('hidden');
     userBtn.classList.remove('hidden');
     userBtn.innerHTML = user.nickname;
 }
 
 function showLoginBtn() {
-    loginBtn.classList.remove('hidden');
+    login_div.classList.remove('hidden');
     userBtn.classList.add('hidden');
     userBtn.innerHTML = "";
 }
-
-function getLoginState() {
-    let state = localStorage.getItem('loginState');
-    switch (state) {
-        case "null":
-        case "false": loginState = false; break;
-        case "true": loginState = true; break;
+function createLoginState() {
+    if(localStorage.getItem('loginState') === null) {
+        localStorage.setItem('loginState', false);
     }
-    return loginState;
+}
+function getLoginState() {
+    return localStorage.getItem('loginState');
 }
 
 function timer() {
@@ -342,7 +335,7 @@ function completePomodoro(keySelectedTask) {
     showStats();
 
     // 유저 정보 업데이트
-    if (loginState) updateUser();
+    if (getLoginState()) updateUser();
 
     audio.play();
     run = false;
@@ -542,7 +535,7 @@ function showTaskList(boolean) {
         li.forEach(li => li.style.color = BLUE) : li.forEach(li => li.style.color = RED);
 
     // 이걸 여기다 해야할까???
-    if (loginState) {
+    if (getLoginState()) {
         updateUser();
     }
     inputTask.value = "";
@@ -840,7 +833,7 @@ optionList.forEach((optionList, i) => {
 
 
 // login 모달 열기
-loginBtn.addEventListener('click', e => {
+login_div.addEventListener('click', e => {
     modalBackground.classList.remove("hidden");
     loginContainer.classList.remove("hidden");
 });
@@ -858,12 +851,12 @@ loginContainerCloseBtn.addEventListener('click', e => {
 });
 
 // login 모달의 login 버튼 클릭 
-login.addEventListener('click', e => loginAndLogout(true));
+// login.addEventListener('click', e => loginAndLogout(true));
+loginBtn.addEventListener('click', e => login());
 
 // user 클릭
-userBtn.addEventListener('click', e => {
-    loginAndLogout(false);
-});
+// userBtn.addEventListener('click', e => loginAndLogout(false));
+userBtn.addEventListener('click', e => logout());
 
 // 완료한 작업 보기 클릭
 showCompletedTaskBtn.addEventListener('click', e => {
