@@ -5,8 +5,8 @@ const GRAY = "var(--black1A)";
 const BLUE = "var(--break-time-background)";
 const CONTAINER_BACKGROUND_COLOR = "var(--container-background)";
 const HOUR = 60;
-const INITIAL_POMODORO_TIME = "05";
-const INITIAL_BREAK_TIME = "05";
+const INITIAL_POMODORO_TIME = 5;
+const INITIAL_BREAK_TIME = 5;
 const INITIAL_SEC = "00";
 // time
 const time = document.querySelector("#time");
@@ -122,7 +122,13 @@ function init() {
     }
 }
 
+function addChar_0(num) {
+    let char = "0" + num;
+    return char;
+}
+
 function showSelectedOptionTime(i, time) {
+    console.log("쇼 셀렉티드 옵션 타임");
     selected[i].innerText = `${time}분`;
 }
 
@@ -596,7 +602,11 @@ function completeTaskBtnHandler(e) {
 
 function showTimer(min, sec = "00") {
     console.log("타이머 html로 보여주는 함수 실행");
-    if(min.length === 1) min = `0${min}`;
+    let stringMin = min.toString();
+    console.log(stringMin.length);
+    if(stringMin.length === 1) min = addChar_0(min);
+    console.log(min);
+    console.log(typeof(min));
     time.innerText = `${min} : ${sec}`;
 }
 
