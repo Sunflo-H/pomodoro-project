@@ -557,7 +557,7 @@ function showTaskList(show) {
 
 // 예정시간을 더하거나 
 function setEstimatedTime() {
-    console.log(`예정시간 세팅 하는 함수 실행`);
+    console.log(`예정시간 세팅 함수 실행`);
 
     let totalTaskTime = 0;
     tasks.forEach(task => {
@@ -568,21 +568,21 @@ function setEstimatedTime() {
 }
 
 function setTaskToComplete(order) {
+    console.log("완료할 작업 세팅 함수 실행");
     if(order === "plus") stats.taskToComplete++;
     else if(order === "minus") stats.taskToComplete--;
 }
 
 function setCompletedTime(key) {
-    console.log("완료한 시간 업데이트 함수 실행");
-    let _task = tasks.find(task => task.key === key);
-    sumCompletedTaskTimes += _task.time;
-    
+    console.log("완료한 시간 세팅 함수 실행");
+    let task = tasks.find(task => task.key === key);
+    sumCompletedTaskTimes += task.time;
     stats.completedTime = Number((sumCompletedTaskTimes / HOUR).toFixed(1));
 }
 
 function setCompletedTask(){
+    console.log("완료한 작업 세팅 함수 실행");
     stats.completedTask++;
-
 }
 
 function completeTaskBtnHandler(e) {
