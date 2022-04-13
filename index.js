@@ -103,6 +103,7 @@ init();
 
 function init() {
     console.log("초기화 단계 시작 합니다.");
+
     // 타이머 관련 함수들
     showTimer(min);
     setStopwatchCount(0);
@@ -142,20 +143,15 @@ function showSelectedOptionTime(i, time) {
 }
 
 function delBtnHandler(e) {
-        let _key = e.currentTarget.parentNode.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
-        console.log(tasks);
+        let _key = e.currentTarget.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
         let newTasks = tasks.filter(task => task.key !== _key);
-        console.log(newTasks);
-        console.log(tasks);
         tasks = [...newTasks];
-        console.log(tasks);
 
         updateEstimatedTime("delete", _key);
         stats.taskToComplete--;
 
-        showTaskList();
         showStats();
-    
+        showTaskList(true);
 }
 
 function getNewKey() {
@@ -478,10 +474,9 @@ function removeCompletedTaskList() {
     }
 }
 
-function showTaskList(boolean) {
+function showTaskList(show) {
     console.log("작업리스트 보여주는 함수 실행");
-    boolean ?
-        taskListBox.classList.remove('hidden') : taskListBox.classList.add('hidden');
+    show ? taskListBox.classList.remove('hidden') : taskListBox.classList.add('hidden');
 
     if (tasks.findIndex(task => task.complete === false) === -1) {
         taskListBox.classList.add('hidden');
@@ -511,7 +506,7 @@ function showTaskList(boolean) {
     const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
     const taskNames = taskListContainer.querySelectorAll('.task-name');
     const li = taskListContainer.querySelectorAll('li');
-    const delBtn = taskListContainer.querySelectorAll('.fa-trash');
+    const delBtn = taskListContainer.querySelectorAll('button');
 
     taskNames.forEach(taskName => {
         taskName.addEventListener('click', e => {
@@ -679,7 +674,7 @@ addTaskBtn.addEventListener('click', e => {
     console.log("완료할 작업 증가합니다 ++로 걍함");
     stats.taskToComplete++;
 
-    console.log("새 작업 등록하고 작업리스트, 통계 html로 보여주기");
+    console.log("작업리스트와 통계를 html로 보여주기");
     showStats();
     showTaskList(true);
 
