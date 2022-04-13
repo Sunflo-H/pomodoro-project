@@ -156,7 +156,7 @@ function delBtnHandler(e) {
         let newTasks = tasks.filter(task => task.key !== _key);
         tasks = [...newTasks];
 
-        updateEstimatedTime("delete", _key);
+        setEstimatedTime("delete", _key);
         stats.taskToComplete--;
 
         showStats();
@@ -340,9 +340,9 @@ function completePomodoro(keySelectedTask) {
 
     //포모도로 완료 -> 예정시간은 완료한만큼 줄고, 완료한 시간은 증가한다.
     // 예정시간
-    updateEstimatedTime("minus", keySelectedTask);
+    setEstimatedTime("minus", keySelectedTask);
     // 완료한 시간
-    updateCompletedTime(keySelectedTask);
+    setCompletedTime(keySelectedTask);
 
     showStats();
 
@@ -555,8 +555,7 @@ function showTaskList(show) {
 }
 
 // 통계 업데이트 함수
-function updateEstimatedTime(order, key) {
-    
+function setEstimatedTime(order, key) {
     console.log(`예정시간 ${order} 하는 함수 실행`);
 
     if (order === "plus" || order === "delete") { 
@@ -576,7 +575,11 @@ function updateEstimatedTime(order, key) {
 
 }
 
-function updateCompletedTime(key) {
+function setTaskToComplete(order) {
+    if(order === "plus") stats.taskToComplete++;
+}
+
+function setCompletedTime(key) {
     console.log("완료한 시간 업데이트 함수 실행");
     let _task = tasks.find(task => task.key === key);
     sumCompletedTaskTimes += _task.time;
@@ -592,7 +595,7 @@ function completeTaskBtnHandler(e) {
     showTaskList(true);
 
     // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
-    updateEstimatedTime("complete" , _key);
+    setEstimatedTime("complete" , _key);
     // 완료할 작업 줄어들어 
     stats.taskToComplete--;
     // 완료한 작업 올라가
@@ -685,11 +688,11 @@ addTaskBtn.addEventListener('click', e => {
 
     // 예정시간 증가
     console.log("예정시간 증가합니다");
-    updateEstimatedTime("plus");
+    setEstimatedTime("plus");
 
     // 완료할 작업 증가
     console.log("완료할 작업 증가합니다 ++로 걍함");
-    stats.taskToComplete++;
+    setTaskToComplete("plus");
 
     console.log("작업리스트와 통계를 html로 보여주기");
     showStats();
