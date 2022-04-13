@@ -611,6 +611,28 @@ window.addEventListener('beforeunload', e => {
     e.returnValue = '';    
 })
 
+// 시작 버튼 클릭시 'innerText = start->stop' & css 변화
+timerStartBtn.addEventListener('mousedown', e => {
+    timerStartBtn.style.boxShadow = "none";
+    timerStartBtn.style.top = "6px";
+});
+
+timerStartBtn.addEventListener('click', e => {
+    timerStartBtn.style.boxShadow = "rgb(214, 214, 214) 0px 6px 0px";
+    timerStartBtn.style.top = "0px";
+    if (!run && currentTaskName.getAttribute('data-time') !== null) {
+        timerStartBtn.innerText = "STOP"
+    }
+    else {
+        timerStartBtn.innerText = "START"
+    }
+});
+
+timerStartBtn.addEventListener('mouseleave', () => {
+    timerStartBtn.style.boxShadow = "rgb(214, 214, 214) 0px 6px 0px";
+    timerStartBtn.style.top = "0px";
+})
+
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
@@ -625,23 +647,6 @@ timerStartBtn.addEventListener('click', e => {
         }
     } else {
         alert("작업을 입력해 주세요");
-    }
-});
-
-// 시작 버튼 클릭시 'innerText = start->stop' & css 변화
-timerStartBtn.addEventListener('mousedown', e => {
-    timerStartBtn.style.boxShadow = "none";
-    timerStartBtn.style.top = "6px";
-});
-
-timerStartBtn.addEventListener('mouseup', e => {
-    timerStartBtn.style.boxShadow = "rgb(214, 214, 214) 0px 6px 0px";
-    timerStartBtn.style.top = "0px";
-    if (!run && currentTaskName.getAttribute('data-time') !== null) {
-        timerStartBtn.innerText = "STOP"
-    }
-    else {
-        timerStartBtn.innerText = "START"
     }
 });
 
