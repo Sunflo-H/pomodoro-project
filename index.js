@@ -102,6 +102,7 @@ function init() {
     setStopwatchCount(0);
     makeOptionItem();
     createKey();
+    showStats();
 
     // 로그인 관련 함수들
     createEmptyUsers();
