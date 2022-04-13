@@ -91,8 +91,6 @@ let completedTasks = [];
 
 let tasks = [];
 
-let keySelectedTask; // 선택한 작업의 key
-
 init();
 
 function init() {
@@ -155,8 +153,8 @@ function delBtnHandler(e) {
         let newTasks = tasks.filter(task => task.key !== _key);
         tasks = [...newTasks];
 
-        setEstimatedTime("delete", _key);
-        stats.taskToComplete--;
+        setEstimatedTime();
+        setTaskToComplete("minus");
 
         showStats();
         showTaskList(true);
@@ -294,7 +292,8 @@ function timer() {
     return setInterval(function () {
         // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
         if (sec === "00") {
-            sec = 59; // 59
+            sec = addChar_0(1); // 59
+            
             min--;
             if (String(min).length === 1) {
                 min = "0" + min; //01분...09분을 표현하기 위함
@@ -306,7 +305,7 @@ function timer() {
             if (min == "00") {
                 if (breakTimeState === false) {
                     //포모도로 타이머 종료시 휴식시간으로 변경
-                    completePomodoro(keySelectedTask);
+                    completePomodoro(localStorage.getItem('currentKey'));
                     changeToBreak();
                     showTimer(optionTime.breakTime);
                     return;
@@ -322,7 +321,7 @@ function timer() {
         else {
             sec--;
             if (String(sec).length === 1) {
-                sec = "0" + sec; //"01"초... "09"초를 표현
+                sec = addChar_0(sec); //"01"초... "09"초를 표현
             }
         }
         showTimer(min, sec);
@@ -332,16 +331,17 @@ function timer() {
 
 
 
-function completePomodoro(keySelectedTask) {
-    console.log("포모도로 완료 함수 실행");
-    tasks.find(task => task.key === keySelectedTask).runTime.current++;
+function completePomodoro(currentTaskKey) {
+    console.log("===포모도로 완료 함수 실행===");
+    console.log(currentTaskKey);
+    tasks.find(task => task.key === currentTaskKey).runTime.current++;
     showTaskList(true);
 
     //포모도로 완료 -> 예정시간은 완료한만큼 줄고, 완료한 시간은 증가한다.
     // 예정시간
-    setEstimatedTime("minus", keySelectedTask);
+    setEstimatedTime();
     // 완료한 시간
-    setCompletedTime(keySelectedTask);
+    setCompletedTime(currentTaskKey);
 
     showStats();
 
@@ -358,7 +358,7 @@ function changeTask(taskKey) {
     let selectedTask = tasks.find(task => {
         return taskKey === task.key;
     })
-    keySelectedTask = selectedTask.key;
+    localStorage.setItem('currentKey', selectedTask.key);
     run = false;
     clearInterval(timeInterval);
     currentTaskName.innerText = selectedTask.name;
@@ -556,30 +556,20 @@ function showTaskList(show) {
 // 통계 업데이트 함수
 
 // 예정시간을 더하거나 
-function setEstimatedTime(order, key) {
-    console.log(`예정시간 ${order} 하는 함수 실행`);
+function setEstimatedTime() {
+    console.log(`예정시간 세팅 하는 함수 실행`);
 
-    let sumTaskTimes = 0;
-
-    if (order === "plus" || order === "delete") { 
-        sumTaskTimes = 0;
-        tasks.forEach(task => {
-            if(task.complete === false) sumTaskTimes += (task.time * task.runTime.max);
-        });
-    } else if (order === "minus") {
-        let _task = tasks.find(task => task.key === key);
-        sumTaskTimes -= _task.time;
-    } else if (order === "complete") {
-        let _task = tasks.find(task => task.key === key);
-        sumTaskTimes -= (_task.runTime.max - _task.runTime.current) * _task.time;
-    } 
+    let totalTaskTime = 0;
+    tasks.forEach(task => {
+        if(task.complete === false) totalTaskTime += (task.time * (task.runTime.max-task.runTime.current));
+    })
     
-    stats.estimatedTime = Number((sumTaskTimes/HOUR).toFixed(1)); //소수점 한자리 반올림
-
+    stats.estimatedTime = Number((totalTaskTime/HOUR).toFixed(1)); //소수점 한자리 반올림
 }
 
 function setTaskToComplete(order) {
     if(order === "plus") stats.taskToComplete++;
+    else if(order === "minus") stats.taskToComplete--;
 }
 
 function setCompletedTime(key) {
@@ -590,26 +580,29 @@ function setCompletedTime(key) {
     stats.completedTime = Number((sumCompletedTaskTimes / HOUR).toFixed(1));
 }
 
+function setCompletedTask(){
+    stats.completedTask++;
+
+}
+
 function completeTaskBtnHandler(e) {
     console.log("작업 완료 버튼 눌렀을때 처리하는 함수 실행");
     let _key = e.target.nextElementSibling.getAttribute('data-key');
     tasks.find(task => task.key === _key).complete = true;
-
-    showTaskList(true);
-
+    
     // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
-    setEstimatedTime("complete" , _key);
-    // 완료할 작업 줄어들어 
-    stats.taskToComplete--;
+    setEstimatedTime();
+    // 완료할 작업 줄어들어
+    setTaskToComplete("minus"); 
     // 완료한 작업 올라가
-    stats.completedTask++;
+    setCompletedTask();
 
-    console.log("완료시");
     showStats();
+
     let completeAll = tasks.findIndex(task => task.complete === false);
-    if (completeAll === -1) {
-        showTaskList(false);
-    }
+    if (completeAll === -1) showTaskList(false)
+    else showTaskList(true);
+
 }
 
 function showTimer(min, sec = "00") {
@@ -677,7 +670,7 @@ addTaskBtn.addEventListener('click', e => {
         alert('포모도로 횟수를 설정해주세요')
         return;
     }
-
+    
     tasks.push({
         name: inputTask.value,
         time: optionTime.pomodoro,
@@ -688,21 +681,23 @@ addTaskBtn.addEventListener('click', e => {
         complete: false,
         key: getNewKey(localStorage.getItem('key'))
     })
-
+    
     // 예정시간 증가
     console.log("예정시간 증가합니다");
-    setEstimatedTime("plus");
-
+    setEstimatedTime();
+    
     // 완료할 작업 증가
-    console.log("완료할 작업 증가합니다 ++로 걍함");
+    console.log("완료할 작업 증가합니다");
     setTaskToComplete("plus");
-
+    
+    
     console.log("작업리스트와 통계를 html로 보여주기");
     showStats();
     showTaskList(true);
-
+    
     console.log("스톱워치 카운트 reset 시키기");
     setStopwatchCount("reset");
+    
 });
 
 // 인풋의 stopwatch 아이콘을 누르면 색이 변하고 count.stopwatch가 증감한다.
