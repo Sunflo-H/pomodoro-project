@@ -92,11 +92,6 @@ let completedTasks = [];
 
 let tasks = [];
 
-let key = localStorage.getItem('key');
-if (key === null) {
-    key = 0;
-    localStorage.setItem('key', key);
-}
 let keySelectedTask; // 선택한 작업의 key
 
 init();
@@ -104,10 +99,12 @@ init();
 function init() {
     console.log("초기화 단계 시작 합니다.");
 
+    
     // 타이머 관련 함수들
     showTimer(min);
     setStopwatchCount(0);
     makeOptionItem();
+    createKey();
 
     // 로그인 관련 함수들
     createEmptyUsers();
@@ -128,6 +125,12 @@ function init() {
         console.log("초기화 단계에서 작업리스트, 통계 html로 보여줍니다.");
         showTaskList(true);
         showStats();
+    }
+}
+
+function createKey() {
+    if (localStorage.getItem('key') === null) {
+        localStorage.setItem('key', 0);
     }
 }
 
@@ -160,7 +163,7 @@ function delBtnHandler(e) {
         showTaskList(true);
 }
 
-function getNewKey() {
+function getNewKey(key) {
     key++;
     localStorage.setItem('key', key);
     return localStorage.getItem('key');
@@ -677,7 +680,7 @@ addTaskBtn.addEventListener('click', e => {
             max: count.stopwatch
         },
         complete: false,
-        key: getNewKey()
+        key: getNewKey(localStorage.getItem('key'))
     })
 
     // 예정시간 증가
