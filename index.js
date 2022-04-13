@@ -232,7 +232,7 @@ function logout() {
     }
     setStopwatchCount("reset");
     showTaskList(false);
-    showStats(0);
+    showStats("reset");
     removeCompletedTaskList();
     localStorage.setItem('loginState', false);
     localStorage.removeItem('user');
@@ -244,13 +244,13 @@ function logout() {
     alert("로그아웃 되었습니다.");
 }
 
-function showStats(num) {
+function showStats(order) {
     console.log("통계 보여주는 함수 실행");
-    if (num !== undefined) {
-        stats.estimatedTime = num;
-        stats.taskToComplete = num;
-        stats.completedTime = num;
-        stats.completedTask = num;
+    if (order === "reset") {
+        stats.estimatedTime = 0;
+        stats.taskToComplete = 0;
+        stats.completedTime = 0;
+        stats.completedTask = 0;
     }
     estimatedTime.innerText = (stats.estimatedTime).toFixed(1); //소수점 문제때문에 한번더 반올림
     if (estimatedTime.innerText === "0.0") estimatedTime.innerText = 0;
@@ -258,7 +258,6 @@ function showStats(num) {
     taskToComplete.innerText = stats.taskToComplete;
     
     completedTime.innerText = Number(stats.completedTime).toFixed(1);
-    
     if (completedTime.innerText === "0.0") completedTime.innerText = 0;
     
     completedTask.innerText = stats.completedTask;
