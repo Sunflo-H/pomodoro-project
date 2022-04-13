@@ -112,6 +112,12 @@ function init() {
     // 로그인 관련 함수들
     createEmptyUsers();
     createLoginState();
+
+    // 현재 tasks와 currentKey를 비교해서 일치하는게 없다면 currentKey를 삭제
+    // currentTaskName 대신 currentKey를 사용하려는 과정임
+    let i = tasks.findIndex(task => task.key === localStorage.getItem('currentKey'));
+    if(i === -1) localStorage.removeItem('currentKey');
+
     if (getLoginState()) {
         showUserBtn();
         user = JSON.parse(localStorage.getItem('user'));
@@ -511,6 +517,7 @@ function showTaskList(show) {
     taskNames.forEach(taskName => {
         taskName.addEventListener('click', e => {
             let _key = taskName.getAttribute('data-key');
+            localStorage.setItem('currentKey', _key);
             if (run) {
                 let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
                 if (question) {
@@ -636,7 +643,8 @@ timerStartBtn.addEventListener('mouseleave', () => {
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
-    if (currentTaskName.getAttribute('data-time') !== null) {
+    // 현재 task가 선택된 상태라면
+    if (localStorage.getItem('currentKey') !== null) {
         if (!run) {
             run = true;
             timeInterval = timer();
@@ -646,7 +654,7 @@ timerStartBtn.addEventListener('click', e => {
             clearInterval(timeInterval);
         }
     } else {
-        alert("작업을 입력해 주세요");
+        alert("작업을 선택해 주세요");
     }
 });
 
@@ -660,6 +668,7 @@ addTaskBtn.addEventListener('click', e => {
         alert('포모도로 횟수를 설정해주세요')
         return;
     }
+
     tasks.push({
         name: inputTask.value,
         time: optionTime.pomodoro,
