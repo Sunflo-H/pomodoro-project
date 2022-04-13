@@ -72,7 +72,6 @@ let optionTime = {
 }
 let breakTimeState = false;
 
-let sumTaskTimes = 0;
 let sumCompletedTaskTimes = 0;
 
 let stats = {
@@ -555,8 +554,12 @@ function showTaskList(show) {
 }
 
 // 통계 업데이트 함수
+
+// 예정시간을 더하거나 
 function setEstimatedTime(order, key) {
     console.log(`예정시간 ${order} 하는 함수 실행`);
+
+    let sumTaskTimes = 0;
 
     if (order === "plus" || order === "delete") { 
         sumTaskTimes = 0;
