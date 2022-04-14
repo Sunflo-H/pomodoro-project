@@ -100,7 +100,7 @@ function init() {
     // 타이머 관련 함수들
     showTimer(min);
     setStopwatchCount(0);
-    makeOptionItem();
+    createOptionItem();
     createKey();
     showStats();
 
@@ -438,7 +438,7 @@ function setStopwatchCount(param) {
     }
 }
 
-function makeOptionItem() {
+function createOptionItem() {
     console.log("세팅메뉴 옵션리스트 생성하는 함수 실행");
     optionList.forEach(optionList => {
         let optionItemTime = 5;
@@ -836,6 +836,7 @@ optionList.forEach((optionList, i) => {
             case 3: number = (e.target.innerText).substring(0, 2);
                 break;
         }
+        console.log(number, typeof(number));
         // i가 0이면 포모도로, 1이면 휴식 시간
         if (i === 0) {
             // 타이머가 실행 중이면 타이머의 시간에는 변화를 주지 않는다.
