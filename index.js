@@ -362,6 +362,7 @@ function changeTask(taskKey) {
     currentTaskName.setAttribute('data-key', selectedTask.key);
     timerStartBtn.innerText = "START"
     min = selectedTask.time;
+    sec = "00"
     showTimer(min);
 }
 
@@ -645,7 +646,19 @@ timerStartBtn.addEventListener('click', e => {
     if (localStorage.getItem('currentKey') !== null) {
         if (!run) {
             run = true;
+            let date = new Date();
+            let h = date.getHours();
+            console.log(h);
+            let m = date.getMinutes();
+            let mMin = m + Number(min);
+            if(mMin >= 60) {
+                h++;
+                mMin-=60;
+            }
+            console.log(mMin);
+            console.log(`${h} : ${mMin}`);
             timeInterval = setInterval(timer, 1000);
+            
         }
         else {
             run = false;

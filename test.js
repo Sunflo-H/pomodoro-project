@@ -3,5 +3,6 @@ function sayHi(data, data2) {
     console.log(data);
     console.log(data2);
 }
-
-setTimeout(sayHi, 1000, "잉?", "이잉ㅇ");
+function start() {
+    let timeInterval = setInterval(sayHi, 1000, "잉?", "이잉ㅇ");
+}
