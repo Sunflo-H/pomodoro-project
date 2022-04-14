@@ -290,13 +290,12 @@ function getLoginState() {
 
 function timer() {
     return setInterval(function () {
-        // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 되야지
+        // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 된다.
         if (sec === "00") {
-            sec = addChar_0(1); // 59
-            
+            sec = 59 // 59
             min--;
             if (String(min).length === 1) {
-                min = "0" + min; //01분...09분을 표현하기 위함
+                min = addChar_0(min); //01분...09분을 표현하기 위함
             }
         }
         // 초가 "01초"면 1초뒤에는 "00"초, 이때 "00 : 00 "이면 타이머 종료
@@ -645,7 +644,7 @@ timerStartBtn.addEventListener('mouseleave', () => {
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
-    // 현재 task가 선택된 상태라면
+    // 현재 task가 선택된 상태라면 타이머를 실행
     if (localStorage.getItem('currentKey') !== null) {
         if (!run) {
             run = true;
