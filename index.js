@@ -65,6 +65,9 @@ let run = false;
 let running = false;
 let min = INITIAL_POMODORO_TIME;
 let sec = INITIAL_SEC;
+let tTime = 0;
+
+
 let timeInterval;
 let optionTime = {
     pomodoro: INITIAL_POMODORO_TIME,
@@ -98,7 +101,8 @@ function init() {
 
     
     // 타이머 관련 함수들
-    showTimer(min);
+    // showTimer(min);
+    showTestTimer(tTime);
     setStopwatchCount(0);
     createOptionItem();
     createKey();
@@ -289,40 +293,42 @@ function getLoginState() {
 }
 
 function timer() {
-    // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 된다.
-    if (sec === "00") {
-        sec = 59 // 59
-        min--;
-        if (String(min).length === 1) {
-            min = addChar_0(min); //01분...09분을 표현하기 위함
-        }
-    }
-    // 초가 "01초"면 1초뒤에는 "00"초, 이때 "00 : 00 "이면 타이머 종료
-    else if (sec == "01") {
-        sec = "00";
-        if (min == "00") {
-            if (breakTimeState === false) {
-                //포모도로 타이머 종료시 휴식시간으로 변경
-                completePomodoro(localStorage.getItem('currentKey'));
-                changeToBreak();
-                showTimer(optionTime.breakTime);
-                return;
-            }
-            else {
-                //휴식시간 종료시 포모도로로 변경
-                changeToPomodoro();
-                // completeBreak();
-            }
-        }
-    }
-    // 위 조건 외에는 초가 --로 정상적으로 흘러간다.
-    else {
-        sec--;
-        if (String(sec).length === 1) {
-            sec = addChar_0(sec); //"01"초... "09"초를 표현
-        }
-    }
-    showTimer(min, sec);
+    // // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 된다.
+    // if (sec === "00") {
+    //     sec = 59 // 59
+    //     min--;
+    //     if (String(min).length === 1) {
+    //         min = addChar_0(min); //01분...09분을 표현하기 위함
+    //     }
+    // }
+    // // 초가 "01초"면 1초뒤에는 "00"초, 이때 "00 : 00 "이면 타이머 종료
+    // else if (sec == "01") {
+    //     sec = "00";
+    //     if (min == "00") {
+    //         if (breakTimeState === false) {
+    //             //포모도로 타이머 종료시 휴식시간으로 변경
+    //             completePomodoro(localStorage.getItem('currentKey'));
+    //             changeToBreak();
+    //             showTimer(optionTime.breakTime);
+    //             return;
+    //         }
+    //         else {
+    //             //휴식시간 종료시 포모도로로 변경
+    //             changeToPomodoro();
+    //             // completeBreak();
+    //         }
+    //     }
+    // }
+    // // 위 조건 외에는 초가 --로 정상적으로 흘러간다.
+    // else {
+    //     sec--;
+    //     if (String(sec).length === 1) {
+    //         sec = addChar_0(sec); //"01"초... "09"초를 표현
+    //     }
+    // }
+    // // showTimer(min, sec);
+    tTime--;
+    showTestTimer(tTime);
 }
 
 
@@ -363,7 +369,8 @@ function changeTask(taskKey) {
     timerStartBtn.innerText = "START"
     min = selectedTask.time;
     sec = "00"
-    showTimer(min);
+    // showTimer(min);
+    showTestTimer(tTime);
 }
 
 function changeToPomodoro() {
@@ -609,6 +616,11 @@ function showTimer(min, sec = "00") {
     time.innerText = `${min} : ${sec}`;
 }
 
+function showTestTimer(tTime) {
+    console.log("타이머 html로 보여주는 테스트 함수");
+    time.innerText = `${tTime}`
+    console.log(Date());
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   이벤트 리스너 목록   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //새로고침, 뒤로가기 경고
@@ -841,8 +853,9 @@ optionList.forEach((optionList, i) => {
         if (i === 0) {
             // 타이머가 실행 중이면 타이머의 시간에는 변화를 주지 않는다.
             
-            optionTime.pomodoro = number;
-            showSelectedOptionTime(i, number);
+            optionTime.pomodoro = Number(number);
+            console.log(number, typeof(number));
+            showSelectedOptionTime(i, optionTime.pomodoro);
     
             if (!run) {
                 min = number;
@@ -851,7 +864,9 @@ optionList.forEach((optionList, i) => {
                     currentTaskName.removeAttribute('data-time');
                     currentTaskName.innerText = "새 작업을 입력해 주세요"
                 }
-                showTimer(min);
+                // showTimer(min);
+                tTime = min * 60;
+                showTestTimer(tTime);
                 // 현재 작업이 선택되어 있으면 작업빼버리고 옵션타임을 보여줘
                 // 선택 안되어 있으면 바로 옵션타임 보여줘
             }
