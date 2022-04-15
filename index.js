@@ -327,8 +327,11 @@ function timer() {
     //     }
     // }
     // // showTimer(min, sec);
-    tTime--;
-    showTestTimer(tTime);
+    if(tTime >= 0){
+        tTime--;
+        setTimeout(timer, 1000);
+        showTestTimer(tTime);
+    }
 }
 
 
@@ -669,7 +672,7 @@ timerStartBtn.addEventListener('click', e => {
             }
             console.log(mMin);
             console.log(`${h} : ${mMin}`);
-            timeInterval = setInterval(timer, 1000);
+            timeInterval = setTimeout(timer, 1000);
             
         }
         else {
