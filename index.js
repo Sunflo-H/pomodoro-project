@@ -813,13 +813,13 @@ settingContainerCloseBtn.addEventListener('click', e => {
 // pomodoro setting의 select박스 클릭시 optionList 열기, 닫기
 selects.forEach(select => {
     select.addEventListener('click', e => {
-        let optionList = select.nextElementSibling;
-        if (optionList.classList.contains("hidden")) {
-            optionList.style.height = "150px";
-            optionList.classList.remove('hidden');
+        let optionListContainer = select.nextElementSibling;
+        if (optionListContainer.classList.contains("hidden")) {
+            optionListContainer.style.height = "150px";
+            optionListContainer.classList.remove('hidden');
         } else {
-            optionList.style.height = "0px";
-            optionList.classList.add('hidden');
+            optionListContainer.style.height = "0px";
+            optionListContainer.classList.add('hidden');
         }
     });
 });
