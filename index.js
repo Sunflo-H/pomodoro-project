@@ -836,19 +836,13 @@ optionLists.forEach(optionList => {
 optionLists.forEach((optionList, i) => {
     optionList.addEventListener('click', e => {
         // e.target.innerText = "5분" , "10분"의 형태를 숫자만 뽑아서 저장한다.
-        // e.target.innerText
         let str = e.target.innerText;
         let regex = /[^0-9]/g;
         let number = Number(str.replace(regex, ""));
         console.log("result : " + number, typeof(number));
-        // i가 0이면 포모도로, 1이면 휴식 시간
-        if (i === 0) {
-            // 타이머가 실행 중이면 타이머의 시간에는 변화를 주지 않는다.
-            
-            optionTime.pomodoro = Number(number);
-            showSelectedOptionTime(i, optionTime.pomodoro);
-    
-            if (!run) {
+        // i가 0이면 포모도로의 optionList, 1이면 휴식 시간의 optionList
+        switch (i) {
+            case 0 : if (!run) {
                 min = number;
                 if (currentTaskName.getAttribute('data-key') !== null) {
                     currentTaskName.removeAttribute('data-key');
@@ -856,13 +850,15 @@ optionLists.forEach((optionList, i) => {
                     currentTaskName.innerText = "새 작업을 입력해 주세요"
                 }
                 showTimer(min);
+                break;
+                
                 
                 // 현재 작업이 선택되어 있으면 작업빼버리고 옵션타임을 보여줘
                 // 선택 안되어 있으면 바로 옵션타임 보여줘
             }
-        } else {
-            optionTime.breakTime = number;
-            selected[i].innerText = `${number}분`;
+            case 1 : optionTime.breakTime = number;
+            console.log("asd");
+                     selected[i].innerText = `${number}분`;
         }
     });
 });
