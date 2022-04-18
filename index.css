@@ -362,7 +362,7 @@ main {
 }
 .option-item {
   padding:5px 0 5px 10px;
-  /* border-bottom: 0.5px dotted var(--gray); */
+  border-bottom: 0.5px dotted var(--gray);
   box-sizing: border-box;
 }
 .option-item:hover {

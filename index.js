@@ -62,11 +62,8 @@ const loginBtn = loginContainer.querySelector('#login-button');
 
 let audio = new Audio('assets/audio/alarm1.mp3');
 let run = false;
-let running = false;
 let min = INITIAL_POMODORO_TIME;
 let sec = INITIAL_SEC;
-
-
 let timeInterval;
 let optionTime = {
     pomodoro: INITIAL_POMODORO_TIME,
@@ -98,7 +95,7 @@ init();
 function init() {
     console.log("초기화 단계 시작 합니다.");
 
-    
+
     // 타이머 관련 함수들
     showTimer(min);
     setStopwatchCount(0);
@@ -113,7 +110,7 @@ function init() {
     // 현재 tasks와 currentKey를 비교해서 일치하는게 없다면 currentKey를 삭제
     // currentTaskName 대신 currentKey를 사용하려는 과정임
     let i = tasks.findIndex(task => task.key === localStorage.getItem('currentKey'));
-    if(i === -1) localStorage.removeItem('currentKey');
+    if (i === -1) localStorage.removeItem('currentKey');
 
     if (getLoginState()) {
         showUserBtn();
@@ -135,9 +132,9 @@ function createKey() {
 }
 
 function createEmptyUsers() {
-    if(localStorage.getItem('users') === null) {
+    if (localStorage.getItem('users') === null) {
         let arr = [];
-        localStorage.setItem('users',JSON.stringify(arr));
+        localStorage.setItem('users', JSON.stringify(arr));
     }
 }
 
@@ -152,15 +149,15 @@ function showSelectedOptionTime(i, time) {
 }
 
 function delBtnHandler(e) {
-        let _key = e.currentTarget.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
-        let newTasks = tasks.filter(task => task.key !== _key);
-        tasks = [...newTasks];
+    let _key = e.currentTarget.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
+    let newTasks = tasks.filter(task => task.key !== _key);
+    tasks = [...newTasks];
 
-        setEstimatedTime();
-        setTaskToComplete("minus");
+    setEstimatedTime();
+    setTaskToComplete("minus");
 
-        showStats();
-        showTaskList(true);
+    showStats();
+    showTaskList(true);
 }
 
 function getNewKey(key) {
@@ -198,7 +195,7 @@ function updateUser() {
     console.log("유저정보 업데이트 함수 실행");
 
     user.tasks = [...tasks];
-    user.stats = {...stats};
+    user.stats = { ...stats };
     localStorage.setItem('user', JSON.stringify(user));
     let users = JSON.parse(localStorage.getItem('users'));
     let i = users.findIndex(users => users.id === user.id);
@@ -208,7 +205,7 @@ function updateUser() {
 
 function login() {
     console.log("로그인 함수 실행");
-    let users = JSON.parse(localStorage.getItem('users'));    
+    let users = JSON.parse(localStorage.getItem('users'));
     let i = users.findIndex(user => (user.id === inputId.value) && (user.pwd === inputPwd.value));
 
     if (i !== -1) {
@@ -259,10 +256,10 @@ function showStats(order) {
     if (estimatedTime.innerText === "0.0") estimatedTime.innerText = 0;
 
     taskToComplete.innerText = stats.taskToComplete;
-    
+
     completedTime.innerText = Number(stats.completedTime).toFixed(1);
     if (completedTime.innerText === "0.0") completedTime.innerText = 0;
-    
+
     completedTask.innerText = stats.completedTask;
 }
 
@@ -279,14 +276,13 @@ function showLoginBtn() {
     userBtn.innerHTML = "";
 }
 function createLoginState() {
-    console.log(localStorage.getItem('loginState'));
-    if(localStorage.getItem('loginState') === null) {
+    if (localStorage.getItem('loginState') === null) {
         console.log("로그인 스테이트 생성");
         localStorage.setItem('loginState', false);
     }
 }
 function getLoginState() {
-    if(localStorage.getItem('loginState') === "true") return true;
+    if (localStorage.getItem('loginState') === "true") return true;
     else return false;
 }
 
@@ -300,7 +296,7 @@ function timer() {
         sum += i;
     }
     var endTime = new Date().getTime();
-    
+
     console.log(endTime - startTime);
 
     if (sec === "00") {
@@ -367,6 +363,7 @@ function changeTask(taskKey) {
     let selectedTask = tasks.find(task => {
         return taskKey === task.key;
     })
+    console.log(selectedTask);
     localStorage.setItem('currentKey', selectedTask.key);
     run = false;
     clearInterval(timeInterval);
@@ -571,16 +568,16 @@ function setEstimatedTime() {
 
     let totalTaskTime = 0;
     tasks.forEach(task => {
-        if(task.complete === false) totalTaskTime += (task.time * (task.runTime.max-task.runTime.current));
+        if (task.complete === false) totalTaskTime += (task.time * (task.runTime.max - task.runTime.current));
     })
-    
-    stats.estimatedTime = Number((totalTaskTime/HOUR).toFixed(1)); //소수점 한자리 반올림
+
+    stats.estimatedTime = Number((totalTaskTime / HOUR).toFixed(1)); //소수점 한자리 반올림
 }
 
 function setTaskToComplete(order) {
     console.log("완료할 작업 세팅 함수 실행");
-    if(order === "plus") stats.taskToComplete++;
-    else if(order === "minus") stats.taskToComplete--;
+    if (order === "plus") stats.taskToComplete++;
+    else if (order === "minus") stats.taskToComplete--;
 }
 
 function setCompletedTime(key) {
@@ -590,7 +587,7 @@ function setCompletedTime(key) {
     stats.completedTime = Number((sumCompletedTaskTimes / HOUR).toFixed(1));
 }
 
-function setCompletedTask(){
+function setCompletedTask() {
     console.log("완료한 작업 세팅 함수 실행");
     stats.completedTask++;
 }
@@ -599,11 +596,11 @@ function completeTaskBtnHandler(e) {
     console.log("작업 완료 버튼 눌렀을때 처리하는 함수 실행");
     let _key = e.target.nextElementSibling.getAttribute('data-key');
     tasks.find(task => task.key === _key).complete = true;
-    
+
     // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
     setEstimatedTime();
     // 완료할 작업 줄어들어
-    setTaskToComplete("minus"); 
+    setTaskToComplete("minus");
     // 완료한 작업 올라가
     setCompletedTask();
 
@@ -618,7 +615,7 @@ function completeTaskBtnHandler(e) {
 function showTimer(min, sec = "00") {
     console.log("타이머 html로 보여주는 함수 실행");
     //length를 얻기위한 문자열 변환
-    if(min.toString().length === 1) min = addChar_0(min);
+    if (min.toString().length === 1) min = addChar_0(min);
     time.innerText = `${min} : ${sec}`;
 }
 
@@ -626,7 +623,7 @@ function showTimer(min, sec = "00") {
 //새로고침, 뒤로가기 경고
 window.addEventListener('beforeunload', e => {
     e.preventDefault();
-    e.returnValue = '';    
+    e.returnValue = '';
 })
 
 // 시작 버튼 클릭시 'innerText = start->stop' & css 변화
@@ -665,13 +662,13 @@ timerStartBtn.addEventListener('click', e => {
             // 뽑은 값이 0이면 종료
 
             timeInterval = setInterval(timer, 1000);
-            
+
         }
         else {
             run = false;
             clearInterval(timeInterval);
         }
-    } 
+    }
     else {
         alert("작업을 선택해 주세요");
     }
@@ -687,7 +684,7 @@ addTaskBtn.addEventListener('click', e => {
         alert('포모도로 횟수를 설정해주세요')
         return;
     }
-    
+
     tasks.push({
         name: inputTask.value,
         time: optionTime.pomodoro,
@@ -698,23 +695,24 @@ addTaskBtn.addEventListener('click', e => {
         complete: false,
         key: getNewKey(localStorage.getItem('key'))
     })
-    
+    console.log(tasks);
+
     // 예정시간 증가
     console.log("예정시간 증가합니다");
     setEstimatedTime();
-    
+
     // 완료할 작업 증가
     console.log("완료할 작업 증가합니다");
     setTaskToComplete("plus");
-    
-    
+
+
     console.log("작업리스트와 통계를 html로 보여주기");
     showStats();
     showTaskList(true);
-    
+
     console.log("스톱워치 카운트 reset 시키기");
     setStopwatchCount("reset");
-    
+
 });
 
 // 인풋의 stopwatch 아이콘을 누르면 색이 변하고 count.stopwatch가 증감한다.
@@ -839,26 +837,32 @@ optionLists.forEach((optionList, i) => {
         let str = e.target.innerText;
         let regex = /[^0-9]/g;
         let number = Number(str.replace(regex, ""));
-        console.log("result : " + number, typeof(number));
+        console.log("result : " + number, typeof (number));
         // i가 0이면 포모도로의 optionList, 1이면 휴식 시간의 optionList
+        console.log(i);
         switch (i) {
-            case 0 : if (!run) {
+            case 0: if (!run) {
+                console.log("포모도로 설정");
+                console.log(run);
                 min = number;
                 if (currentTaskName.getAttribute('data-key') !== null) {
                     currentTaskName.removeAttribute('data-key');
                     currentTaskName.removeAttribute('data-time');
                     currentTaskName.innerText = "새 작업을 입력해 주세요"
                 }
+                optionTime.pomodoro = number;
+                showSelectedOptionTime(i, optionTime.pomodoro);
                 showTimer(min);
-                break;
-                
-                
-                // 현재 작업이 선택되어 있으면 작업빼버리고 옵션타임을 보여줘
-                // 선택 안되어 있으면 바로 옵션타임 보여줘
             }
-            case 1 : optionTime.breakTime = number;
-            console.log("asd");
-                     selected[i].innerText = `${number}분`;
+            else {
+                optionTime.pomodoro = number;
+                showSelectedOptionTime(i, optionTime.pomodoro);
+            }
+                break;
+            case 1: optionTime.breakTime = number;
+                console.log("쉬는시간 설정");
+                showSelectedOptionTime(i, optionTime.breakTime);
+                break;
         }
     });
 });
