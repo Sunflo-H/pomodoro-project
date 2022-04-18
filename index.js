@@ -91,16 +91,17 @@ let count = {
 }
 
 let user; // 로그인중인 사용자의 정보가 업데이트 될때마다 매번 저장하는 변수
+// id, pwd, email, stats, tasks 정보를 가진다.
 
 let completedTasks = [];
 
-let tasks = [];
+let tasks = []; // 사용자가 task를 추가할 때마다 여기에 push한다.
+// name, time, runTime, complete의 유무, key 정보를 가진다.
 
 init();
 
 function init() {
     console.log("초기화 단계 시작 합니다.");
-
 
     // 타이머 관련 함수들
     showTimer(min);
@@ -113,8 +114,6 @@ function init() {
     createEmptyUsers();
     createLoginState();
 
-    // 현재 tasks와 currentKey를 비교해서 일치하는게 없다면 currentKey를 삭제
-    // currentTaskName 대신 currentKey를 사용하려는 과정임
     let i = tasks.findIndex(task => task.key === localStorage.getItem('currentKey'));
     if (i === -1) localStorage.removeItem('currentKey');
 
@@ -128,6 +127,7 @@ function init() {
         console.log("초기화 단계에서 작업리스트, 통계 html로 보여줍니다.");
         showTaskList(true);
         showStats();
+        console.log(user);
     }
 }
 
@@ -177,9 +177,10 @@ function getUserStats() {
     stats = user.stats;
 }
 
+// user.tasks를 앱에서 사용할 tasks 변수에 저장한다.
 function getUserTask() {
     console.log("유저 task 가져오는 함수 실행");
-    console.log(user);
+    console.log(user.tasks);
     user.tasks.forEach(userTask => {
         if (userTask.name === "") return;
         if (tasks.findIndex(task => task.key === userTask.key) === -1) {
@@ -197,6 +198,7 @@ function getUserTask() {
     })
 }
 
+// tasks와 stats를 user.tasks, user.stats 에 저장 한 뒤 user, users를 localStorage에 저장
 function updateUser() {
     console.log("유저정보 업데이트 함수 실행");
 
@@ -215,14 +217,17 @@ function login() {
     let i = users.findIndex(user => (user.id === inputId.value) && (user.pwd === inputPwd.value));
 
     if (i !== -1) {
-        user = users[i];
+        user = {...users[i]}; // user는 객체야, 깊은복사 성공
+        
         localStorage.setItem('loginState', true);
         localStorage.setItem('user', JSON.stringify(user));
+        console.log(user);
 
         showUserBtn();
         getUserTask();
+        getUserStats();
         showTaskList(true);
-        console.log(localStorage.getItem('users'));
+        showStats();
         alert("로그인 되었습니다.");
         modalBackground.classList.add("hidden");
         loginContainer.classList.add('hidden');
@@ -236,8 +241,8 @@ function logout() {
     while (taskListContainer.hasChildNodes()) {
         taskListContainer.removeChild(taskListContainer.firstChild);
     }
-    setStopwatchCount("reset");
     showTaskList(false);
+    setStopwatchCount("reset");
     showStats("reset");
     removeCompletedTaskList();
     localStorage.setItem('loginState', false);
@@ -252,20 +257,26 @@ function logout() {
 
 function showStats(order) {
     console.log("통계 보여주는 함수 실행");
+    console.log(stats);
+    // console.log(user.stats);
     if (order === "reset") {
         stats.estimatedTime = 0;
         stats.taskToComplete = 0;
         stats.completedTime = 0;
         stats.completedTask = 0;
     }
+    // 예정시간
     estimatedTime.innerText = (stats.estimatedTime).toFixed(1); //소수점 문제때문에 한번더 반올림
     if (estimatedTime.innerText === "0.0") estimatedTime.innerText = 0;
 
+    // 완료할 작업
     taskToComplete.innerText = stats.taskToComplete;
-
+    
+    // 완료한 시간
     completedTime.innerText = Number(stats.completedTime).toFixed(1);
     if (completedTime.innerText === "0.0") completedTime.innerText = 0;
 
+    // 완료한 작업
     completedTask.innerText = stats.completedTask;
 }
 
@@ -299,6 +310,9 @@ function timer(startTime) {
     min = Math.floor(remainingSec / 60);
     sec = remainingSec % 60;
     showTimer(min, sec);
+    if(min === 0 && sec === 0) {
+        completePomodoro(localStorage.getItem('currentKey'));
+    }
 }
 
 
@@ -521,10 +535,6 @@ function showTaskList(show) {
     breakTimeState ?
         li.forEach(li => li.style.color = BLUE) : li.forEach(li => li.style.color = RED);
 
-    // 이걸 여기다 해야할까???
-    if (getLoginState()) {
-        updateUser();
-    }
     inputTask.value = "";
 }
 
@@ -659,7 +669,6 @@ addTaskBtn.addEventListener('click', e => {
         complete: false,
         key: getNewKey(localStorage.getItem('key'))
     })
-    console.log(tasks);
 
     // 예정시간 증가
     console.log("예정시간 증가합니다");
@@ -676,6 +685,10 @@ addTaskBtn.addEventListener('click', e => {
 
     console.log("스톱워치 카운트 reset 시키기");
     setStopwatchCount("reset");
+
+    if (getLoginState()) {
+        updateUser();
+    }
 
 });
 
