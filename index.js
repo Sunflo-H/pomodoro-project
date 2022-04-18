@@ -174,35 +174,20 @@ function getNewKey(key) {
 
 function getUserStats() {
     console.log("유저 stats 가져오는 함수 실행");
-    stats = user.stats;
+    stats = {...user.stats};
 }
 
 // user.tasks를 앱에서 사용할 tasks 변수에 저장한다.
 function getUserTask() {
     console.log("유저 task 가져오는 함수 실행");
-    console.log(user.tasks);
-    // user.tasks에 두개의 task가 있고 tasks에는 아무것도 없어
-    // user.tasks를 반복하여 tasks에 push해줘야해
-    console.log(tasks);
+    // user.tasks와 tasks 를 비교하여 일치하는게 없다면
+    // user.tasks를 반복하여 일치하지 않는 task를 tasks에 push해줘야해
     user.tasks.forEach(userTask => {
         if (userTask.name === "") return; 
         if (tasks.findIndex(task => task.key === userTask.key) === -1) {
             tasks.push({...userTask});
         }
-        // if (tasks.findIndex(task => task.key === userTask.key) === -1) {
-        //     tasks.push({
-        //         name: userTask.name,
-        //         time: userTask.time,
-        //         runTime: {
-        //             current: userTask.runTime.current,
-        //             max: userTask.runTime.max
-        //         },
-        //         complete: userTask.complete,
-        //         key: userTask.key
-        //     })
-        // }
     });
-    console.log(tasks);
 }
 
 // tasks와 stats를 user.tasks, user.stats 에 저장 한 뒤 user, users를 localStorage에 저장
