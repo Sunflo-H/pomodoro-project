@@ -1,41 +1,27 @@
-// function printNumbers_setInterval(from, to) {
-//     let timeId = setInterval(() => {
-//         console.log(from);
-//         ++from;
-//         if(from >= to) clearInterval(timeId);
-//     }, 1000);
-// }
+// let heros = [
+//     {
+//         name: "superman"
+//     },
+//     {
+//         name: "batman"
+//     }
+// ]
 
-// printNumbers_setInterval(1, 100);
 
-// function ps(from, to) {
-//     let timeId = setInterval(() => {
-//         console.log(from);
-//         console.log(Date());
-//         ++from;
-//         if(from >= to) clearInterval(timeId);
-//     },1000);
-// }
-// ps(1, 10000);
+// let temp = [{...heros[0]}, {...heros[1]}];
+// console.log(temp === heros);
+// console.log(temp[0] === heros[0]);
+// console.log('temp',temp);
 
-// function printNumbers_setTimeout(from, to) {
-//     setTimeout(
-//         function run(from, to, text) {
-//             console.log(from, text);
-//             if(from<to){
-//                 setTimeout(run, 1000, ++from, to, "텍스트");
-//             }
-//         }
-//     , 1000, 0, 5);
-// }
+// temp[0].name = "venom";
+// console.log('hreos', heros);
+// console.log('temp', temp);
 
-// printNumbers_setTimeout(0, 5);
+// let vilains = ['vulture', 'tanos'];
 
-// setInterval(() => {
-//     log(1);
-//   }, 100);
-
-// browser.alarms.create(
-//     myAlarm,
-//     alarmInfo
-// )
+// let t1 = [...vilains];
+// console.log('vilains' , vilains);
+// console.log('t1', t1);
+// t1[0] = 'a';
+// console.log('vilains' , vilains);
+// console.log('t1', t1);
