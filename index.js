@@ -181,21 +181,28 @@ function getUserStats() {
 function getUserTask() {
     console.log("유저 task 가져오는 함수 실행");
     console.log(user.tasks);
+    // user.tasks에 두개의 task가 있고 tasks에는 아무것도 없어
+    // user.tasks를 반복하여 tasks에 push해줘야해
+    console.log(tasks);
     user.tasks.forEach(userTask => {
-        if (userTask.name === "") return;
+        if (userTask.name === "") return; 
         if (tasks.findIndex(task => task.key === userTask.key) === -1) {
-            tasks.push({
-                name: userTask.name,
-                time: userTask.time,
-                runTime: {
-                    current: userTask.runTime.current,
-                    max: userTask.runTime.max
-                },
-                complete: userTask.complete,
-                key: userTask.key
-            })
+            tasks.push({...userTask});
         }
-    })
+        // if (tasks.findIndex(task => task.key === userTask.key) === -1) {
+        //     tasks.push({
+        //         name: userTask.name,
+        //         time: userTask.time,
+        //         runTime: {
+        //             current: userTask.runTime.current,
+        //             max: userTask.runTime.max
+        //         },
+        //         complete: userTask.complete,
+        //         key: userTask.key
+        //     })
+        // }
+    });
+    console.log(tasks);
 }
 
 // tasks와 stats를 user.tasks, user.stats 에 저장 한 뒤 user, users를 localStorage에 저장
@@ -207,6 +214,7 @@ function updateUser() {
     localStorage.setItem('user', JSON.stringify(user));
     let users = JSON.parse(localStorage.getItem('users'));
     let i = users.findIndex(users => users.id === user.id);
+    console.log(user);
     users[i] = user;
     localStorage.setItem('users', JSON.stringify(users));
 }
