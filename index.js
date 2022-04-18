@@ -64,7 +64,13 @@ let audio = new Audio('assets/audio/alarm1.mp3');
 let run = false;
 let min = INITIAL_POMODORO_TIME;
 let sec = INITIAL_SEC;
+
+let totalSec; // min을 초로 변경한 값
+let remainingSec; // 남은 초 (totalSec - (현재시간 - 시작시간))
+
 let timeInterval;
+let tempStartTime = 0;
+
 let optionTime = {
     pomodoro: INITIAL_POMODORO_TIME,
     breakTime: INITIAL_BREAK_TIME
@@ -286,52 +292,13 @@ function getLoginState() {
     else return false;
 }
 
-function timer() {
-    // 초가 "00"이면 1초뒤에는 min이 1감소하고 sec는 59가 된다.
-
-    var sum = 0;
-
-    var startTime = new Date().getTime();
-    for (var i = 1; i <= 10000000; i++) {
-        sum += i;
-    }
-    var endTime = new Date().getTime();
-
-    console.log(endTime - startTime);
-
-    if (sec === "00") {
-        sec = 59 // 59
-        min--;
-        if (String(min).length === 1) {
-            min = addChar_0(min); //01분...09분을 표현하기 위함
-        }
-    }
-    // 초가 "01초"면 1초뒤에는 "00"초, 이때 "00 : 00 "이면 타이머 종료
-    else if (sec == "01") {
-        sec = "00";
-        if (min == "00") {
-            if (breakTimeState === false) {
-                //포모도로 타이머 종료시 휴식시간으로 변경
-                completePomodoro(localStorage.getItem('currentKey'));
-                changeToBreak();
-                showTimer(optionTime.breakTime);
-                return;
-            }
-            else {
-                //휴식시간 종료시 포모도로로 변경
-                changeToPomodoro();
-                // completeBreak();
-            }
-        }
-    }
-    // 위 조건 외에는 초가 --로 정상적으로 흘러간다.
-    else {
-        sec--;
-        if (String(sec).length === 1) {
-            sec = addChar_0(sec); //"01"초... "09"초를 표현
-        }
-    }
-    // showTimer(min, sec);
+function timer(startTime) {
+    let str = String(Date.now()- startTime);
+    let result = str.substring(0, str.length-3);
+    remainingSec = totalSec - result; // 남은 초
+    min = Math.floor(remainingSec / 60);
+    sec = remainingSec % 60;
+    showTimer(min, sec);
 }
 
 
@@ -373,6 +340,7 @@ function changeTask(taskKey) {
     timerStartBtn.innerText = "START"
     min = selectedTask.time;
     sec = "00"
+    totalSec = selectedTask.time * 60;
     showTimer(min);
 }
 
@@ -616,6 +584,7 @@ function showTimer(min, sec = "00") {
     console.log("타이머 html로 보여주는 함수 실행");
     //length를 얻기위한 문자열 변환
     if (min.toString().length === 1) min = addChar_0(min);
+    if (sec.toString().length === 1) sec = addChar_0(sec);
     time.innerText = `${min} : ${sec}`;
 }
 
@@ -651,22 +620,17 @@ timerStartBtn.addEventListener('mouseleave', () => {
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
-    // 현재 task가 선택된 상태라면 타이머를 실행
-    if (localStorage.getItem('currentKey') !== null) {
-        if (!run) {
+    if (localStorage.getItem('currentKey') !== null) { // 현재 task가 선택된 상태라면 타이머를 실행
+        let startTime = Date.now();
+
+        if (!run) { // 타이머 실행
             run = true;
-            // 옵션타임 분 설정하면 분*60의 형태의 time값 받아와서 
-            // 숫자값을 showTimer에서 이를 타이머형태로 보여준다.
-            // 시작 시간을 저장
-            // 1초마다 time값 - (현재시간 - 시작시간) 의 값을 뽑아
-            // 뽑은 값이 0이면 종료
-
-            timeInterval = setInterval(timer, 1000);
-
+            timeInterval = setInterval(timer, 1000, startTime);
         }
-        else {
+        else if(run) { // 타이머 정지
             run = false;
             clearInterval(timeInterval);
+            totalSec = remainingSec;
         }
     }
     else {
