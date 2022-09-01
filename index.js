@@ -8,6 +8,8 @@ const HOUR = 60;
 const INITIAL_POMODORO_TIME = 5;
 const INITIAL_BREAK_TIME = 5;
 const INITIAL_SEC = "00";
+const TEST_MIN = 1;
+const TEST_SEC = 2;
 // time
 const time = document.querySelector("#time");
 const timerStartBtn = document.querySelector('#btn-timer-start');
@@ -62,7 +64,8 @@ const loginBtn = loginContainer.querySelector('#login-button');
 
 let audio = new Audio('assets/audio/alarm1.mp3');
 let run = false;
-let min = INITIAL_POMODORO_TIME;
+// let min = INITIAL_POMODORO_TIME;
+let min = TEST_MIN;
 let sec = INITIAL_SEC;
 
 let totalSec; // min을 초로 변경한 값
@@ -72,7 +75,8 @@ let timeInterval;
 let tempStartTime = 0;
 
 let optionTime = {
-    pomodoro: INITIAL_POMODORO_TIME,
+    // pomodoro: INITIAL_POMODORO_TIME,
+    pomodoro: TEST_MIN,
     breakTime: INITIAL_BREAK_TIME
 }
 let breakTimeState = false;
@@ -221,7 +225,7 @@ function login() {
         getUserStats();
         showTaskList(true);
         showStats();
-        alert("로그인 되었습니다.");
+        Swal.fire('로그인 되었습니다.');
         modalBackground.classList.add("hidden");
         loginContainer.classList.add('hidden');
     } else {
@@ -333,21 +337,21 @@ function completePomodoro(currentTaskKey) {
     timerStartBtn.innerText = "START";
 }
 
-function changeTask(taskKey) {
-    let selectedTask = tasks.find(task => {
+function selectTask(taskKey) {
+    let selectTask = tasks.find(task => {
         return taskKey === task.key;
     })
-    console.log(selectedTask);
-    localStorage.setItem('currentKey', selectedTask.key);
+    console.log(selectTask);
+    localStorage.setItem('currentKey', selectTask.key);
     run = false;
     clearInterval(timeInterval);
-    currentTaskName.innerText = selectedTask.name;
-    currentTaskName.setAttribute('data-time', selectedTask.time);
-    currentTaskName.setAttribute('data-key', selectedTask.key);
+    currentTaskName.innerText = selectTask.name;
+    currentTaskName.setAttribute('data-time', selectTask.time);
+    currentTaskName.setAttribute('data-key', selectTask.key);
     timerStartBtn.innerText = "START"
-    min = selectedTask.time;
+    min = selectTask.time;
     sec = "00"
-    totalSec = selectedTask.time * 60;
+    totalSec = selectTask.time * 60;
     showTimer(min);
 }
 
@@ -426,7 +430,7 @@ function setStopwatchCount(param) {
 function createOptionItem() {
     console.log("세팅메뉴 옵션리스트 생성하는 함수 실행");
     optionLists.forEach(optionList => {
-        let optionItemTime = 5;
+        let optionItemTime = 1;
         while (optionItemTime <= 60) {
             let optionItem = `<li class="option-item">
                                 ${optionItemTime}분
@@ -490,7 +494,7 @@ function showTaskList(show) {
                     </li>`
 
         taskListContainer.insertAdjacentHTML('beforeend', html);
-    })
+    });
 
     // 새로 생긴 html에 이벤트를 등록해주기
     const completeTaskBtn = taskListContainer.querySelectorAll('.fa-check-circle');
@@ -505,14 +509,14 @@ function showTaskList(show) {
             if (run) {
                 let question = confirm("포모도로가 실행중 입니다. 작업을 바꾸면 시간은 초기화됩니다. 정말 바꾸시겠습니까?");
                 if (question) {
-                    changeTask(_key);
+                    selectTask(_key);
                 }
                 else {
                     run = true;
                     return;
                 }
             } else {
-                changeTask(_key);
+                selectTask(_key);
             }
         })
     });
@@ -584,7 +588,6 @@ function completeTaskBtnHandler(e) {
 }
 
 function showTimer(min, sec = "00") {
-    console.log("타이머 html로 보여주는 함수 실행");
     //length를 얻기위한 문자열 변환
     if (min.toString().length === 1) min = addChar_0(min);
     if (sec.toString().length === 1) sec = addChar_0(sec);
@@ -637,7 +640,7 @@ timerStartBtn.addEventListener('click', e => {
         }
     }
     else {
-        alert("작업을 선택해 주세요");
+        alert("작업을 선택해 주세요");        
     }
 });
 
