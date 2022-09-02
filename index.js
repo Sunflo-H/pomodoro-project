@@ -1,5 +1,18 @@
 'use strict'
 
+/**
+ * 작동 순서 - 타이머
+ * 1. init()
+ * 2. 타이머 시간 설정 = createOptionItem() -> optionLists Click이벤트
+ * 3. 새 작업을 입력(작업명, 타이머 횟수) 
+ * 4. addTaskBtn 클릭 = 작업정보(작업명,시간,타이머횟수,완료상태,키)를 tasks[]에 저장, 통계작업
+ * 5. 작업리스트 생성 = showTaskList(true) -> 이렇게 새로 생긴 작업리스트에 이벤트 등록
+ * 6. 작업을 클릭 = taskName 클릭
+ * 7. start 버튼 클릭
+ * 8. 타이머 실행.
+ * 
+ */
+
 const RED = "var(--pomodoro-background)";
 const GRAY = "var(--black1A)";
 const BLUE = "var(--break-time-background)";
@@ -21,6 +34,7 @@ const addTaskBtn = document.querySelector('#btn-add-task');
 const inputTask = document.querySelector('#input-task');
 const taskListBox = document.querySelector('.task-list-box');
 const taskListContainer = document.querySelector('.task-container > div > ul');
+/** 실행중인 작업의 이름 div */
 const currentTaskName = document.querySelector('#current-task-name');
 // stopwatch icon setting
 const stopwatchIcon = document.querySelectorAll('.task-container > .flex-container > .fa-stopwatch');
@@ -61,14 +75,14 @@ const inputId = loginContainer.querySelector('#input-id');
 const inputPwd = loginContainer.querySelector('#input-pwd');
 const loginBtn = loginContainer.querySelector('#login-button');
 
-
 let audio = new Audio('assets/audio/alarm1.mp3');
 let run = false;
 // let min = INITIAL_POMODORO_TIME;
 let min = TEST_MIN;
 let sec = INITIAL_SEC;
 
-let totalSec; // min을 초로 변경한 값
+/** 타이머를 초로 변경한 값, 작업을 선택할때 저장된다. (해당 작업의 타이머 * 60) */
+let totalSec; 
 let remainingSec; // 남은 초 (totalSec - (현재시간 - 시작시간))
 
 let timeInterval;
@@ -99,8 +113,8 @@ let user; // 로그인중인 사용자의 정보가 업데이트 될때마다 �
 
 let completedTasks = [];
 
+/** name, time, runTime, complete의 유무, key 정보를 가진다.*/
 let tasks = []; // 사용자가 task를 추가할 때마다 여기에 push한다.
-// name, time, runTime, complete의 유무, key 정보를 가진다.
 
 init();
 
@@ -113,6 +127,10 @@ function init() {
     createOptionItem();
     createKey();
     showStats();
+
+    // 작업 관련 함수들
+    getNonLoginTasks();
+    showTaskList();
 
     // 로그인 관련 함수들
     createEmptyUsers();
@@ -135,6 +153,16 @@ function init() {
     }
 }
 
+/** 로컬스토리지로부터 'non-login-tasks'(비로그인 유저의 task) 를 tasks에 저장한다. */
+function getNonLoginTasks() {
+    console.log("로컬스토리지로부터 비로그인 유저의 task 정보를 불러옵니다.");
+
+    let nonLoginTasks = JSON.parse(localStorage.getItem('non-login-tasks'));
+
+    if(nonLoginTasks !== null) tasks = JSON.parse(localStorage.getItem('non-login-tasks'));
+}
+
+/** 초기화 단계에서 localStorage에 'key'가 없다면 생성한다. */
 function createKey() {
     if (localStorage.getItem('key') === null) {
         localStorage.setItem('key', 0);
@@ -147,14 +175,23 @@ function createEmptyUsers() {
         localStorage.setItem('users', JSON.stringify(arr));
     }
 }
-
+/**
+ * 파라미터로 오는 숫자의 앞에 0을 붙여서 반환하는 함수
+ * @param {*} num 
+ * @returns ex) 1 => 01 , 2 => 02
+ */
 function addChar_0(num) {
     let char = "0" + num;
     return char;
 }
 
+/**
+ * 세팅에서 Pomodoro Time 또는 Break Time의 select를 내가 클릭한 시간으로 보이게 한다.
+ * @param {*} i 포모도로, 휴식 을 나누는 값 (0=포모도로, 1=휴식)
+ * @param {*} time `${time}분`으로 값을 설정
+ */
 function showSelectedOptionTime(i, time) {
-    console.log("쇼 셀렉티드 옵션 타임");
+    console.log(`쇼 셀렉티드 옵션 타임, 세팅의 항목을 선택한 시간으로 바꿉니다. ${time}분 `);
     selected[i].innerText = `${time}분`;
 }
 
@@ -301,15 +338,31 @@ function getLoginState() {
 }
 
 function timer(startTime) {
-    let str = String(Date.now()- startTime);
-    let result = str.substring(0, str.length-3);
-    remainingSec = totalSec - result; // 남은 초
-    min = Math.floor(remainingSec / 60);
+    let str = String(Date.now()- startTime); // 현재시간과 시작시간의 차를 구한다.
+                                             // str은 1초일때 1001, 2초일때 2015, 3초일때 3004
+                                             // 이런식으로 미세한 오차가 발생한다.
+
+    let goneSec = str.substring(0, str.length-3); // 오차를 제거하기위해 뒤에 3자리를 자른다.
+                                                 // ex) 1001 => 1, 2015 => 2 , 3004 => 3
+                                                 // 이게 곧 진행한 시간이 된다.
+
+    remainingSec = totalSec - goneSec; // 남은 초
+    console.log(remainingSec);
+
+    min = Math.floor(remainingSec / 60); // 600 / 60 = 10분 00초, 630 / 60 = 10분 30초
     sec = remainingSec % 60;
+    
     showTimer(min, sec);
-    if(min === 0 && sec === 0) {
+    
+    // -1 / 60 0분
+    if(min <= 0 && sec <= 0) {
         completePomodoro(localStorage.getItem('currentKey'));
     }
+
+    // 끝날때 시간을 미리 구해 
+    // 계속해서 현재시간을 받고
+    // 그러다가 현재시간 === 끝날떄 시간이면 00 : 00 만들고 종료
+    // 백그라운드에 진입하고 10분정도 지나면 1분간격으로 작동한다.
 }
 
 
@@ -427,6 +480,9 @@ function setStopwatchCount(param) {
     }
 }
 
+/**
+ * 상단 setting 에서 Pomodoro Time과 Break Time의 HTML을 만든다.
+ */
 function createOptionItem() {
     console.log("세팅메뉴 옵션리스트 생성하는 함수 실행");
     optionLists.forEach(optionList => {
@@ -441,6 +497,10 @@ function createOptionItem() {
     })
 }
 
+/**
+ * 
+ * @returns 
+ */
 function showCompletedTaskList() {
     if (!completedTaskListContainer.hasChildNodes) return;
     removeCompletedTaskList();
@@ -468,9 +528,16 @@ function removeCompletedTaskList() {
     }
 }
 
-function showTaskList(show) {
+/**
+ * 
+ * @param {boolean} isTrue 
+ */
+function showTaskList(isTrue) {
     console.log("작업리스트 보여주는 함수 실행");
-    show ? taskListBox.classList.remove('hidden') : taskListBox.classList.add('hidden');
+
+    if(tasks.length === 0) return; //show 할 작업이 없으면 바로 return해버리기
+
+    isTrue ? taskListBox.classList.remove('hidden') : taskListBox.classList.add('hidden');
 
     if (tasks.findIndex(task => task.complete === false) === -1) {
         taskListBox.classList.add('hidden');
@@ -589,6 +656,7 @@ function completeTaskBtnHandler(e) {
 
 function showTimer(min, sec = "00") {
     //length를 얻기위한 문자열 변환
+    console.log(min, sec);
     if (min.toString().length === 1) min = addChar_0(min);
     if (sec.toString().length === 1) sec = addChar_0(sec);
     time.innerText = `${min} : ${sec}`;
@@ -626,14 +694,16 @@ timerStartBtn.addEventListener('mouseleave', () => {
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
+    console.log((-3 / 60));
+    console.log((-1 % 60));
     if (localStorage.getItem('currentKey') !== null) { // 현재 task가 선택된 상태라면 타이머를 실행
         let startTime = Date.now();
-
-        if (!run) { // 타이머 실행
+        
+        if (!run) { // 타이머가 정지상태라면 작동시킨다.
             run = true;
             timeInterval = setInterval(timer, 1000, startTime);
         }
-        else if(run) { // 타이머 정지
+        else if(run) { // 타이머가 작동중이라면 정지시킨다.
             run = false;
             clearInterval(timeInterval);
             totalSec = remainingSec;
@@ -665,6 +735,8 @@ addTaskBtn.addEventListener('click', e => {
         complete: false,
         key: getNewKey(localStorage.getItem('key'))
     })
+
+    localStorage.setItem('non-login-tasks', JSON.stringify(tasks));
 
     // 예정시간 증가
     console.log("예정시간 증가합니다");
@@ -795,7 +867,7 @@ selects.forEach(select => {
     });
 });
 
-// optionList 닫기 - 마우스가 벗어났을때
+/** 마우스가 벗어났을때 optionList(세팅->시간) 닫기 */
 optionLists.forEach(optionList => {
     optionList.addEventListener('mouseleave', e => {
         optionList.style.height = "0px";
@@ -803,39 +875,39 @@ optionLists.forEach(optionList => {
     });
 });
 
-// optionTime을 선택하여 pomodoro와 breakTime을 설정
+/** optionTime을 선택하여 pomodoro와 breakTime을 설정 */
 optionLists.forEach((optionList, i) => {
     optionList.addEventListener('click', e => {
         // e.target.innerText = "5분" , "10분"의 형태를 숫자만 뽑아서 저장한다.
         let str = e.target.innerText;
         let regex = /[^0-9]/g;
         let number = Number(str.replace(regex, ""));
-        console.log("result : " + number, typeof (number));
+        console.log("result: " + number + " /  type: "+ typeof (number));
         // i가 0이면 포모도로의 optionList, 1이면 휴식 시간의 optionList
         console.log(i);
         switch (i) {
             case 0: if (!run) {
-                console.log("포모도로 설정");
-                console.log(run);
-                min = number;
-                if (currentTaskName.getAttribute('data-key') !== null) {
-                    currentTaskName.removeAttribute('data-key');
-                    currentTaskName.removeAttribute('data-time');
-                    currentTaskName.innerText = "새 작업을 입력해 주세요"
-                }
-                optionTime.pomodoro = number;
-                showSelectedOptionTime(i, optionTime.pomodoro);
-                showTimer(min);
-            }
-            else {
-                optionTime.pomodoro = number;
-                showSelectedOptionTime(i, optionTime.pomodoro);
-            }
-                break;
+                        console.log("포모도로 설정");
+                        console.log(run);
+                        min = number;
+                        if (currentTaskName.getAttribute('data-key') !== null) {
+                            currentTaskName.removeAttribute('data-key');
+                            currentTaskName.removeAttribute('data-time');
+                            currentTaskName.innerText = "새 작업을 입력해 주세요"
+                        }
+                        optionTime.pomodoro = number;
+                        showSelectedOptionTime(i, optionTime.pomodoro);
+                        showTimer(min);
+                    }
+                    else {
+                        optionTime.pomodoro = number;
+                        showSelectedOptionTime(i, optionTime.pomodoro);
+                    }
+                    break;
             case 1: optionTime.breakTime = number;
-                console.log("쉬는시간 설정");
-                showSelectedOptionTime(i, optionTime.breakTime);
-                break;
+                    console.log("쉬는시간 설정");
+                    showSelectedOptionTime(i, optionTime.breakTime);
+                    break;
         }
     });
 });
