@@ -4,13 +4,20 @@
  * 작동 순서 - 타이머
  * 1. init()
  * 2. 타이머 시간 설정 = createOptionItem() -> optionLists Click이벤트
- * 3. 새 작업을 입력(작업명, 타이머 횟수) 
- * 4. addTaskBtn 클릭 = 작업정보(작업명,시간,타이머횟수,완료상태,키)를 tasks[]에 저장, 통계작업
- * 5. 작업리스트 생성 = showTaskList(true) -> 이렇게 새로 생긴 작업리스트에 이벤트 등록
- * 6. 작업을 클릭 = taskName 클릭
- * 7. start 버튼 클릭
- * 8. 타이머 실행.
  * 
+ * 1. 새 작업을 입력 (작업명, 타이머 횟수) 
+ * 2. addTaskBtn 클릭
+ *  2-1 작업정보(작업명,시간,타이머횟수,완료상태,키)를 tasks[]에 저장,
+ *  2-2 통계작업
+ * 3. 작업리스트 생성 showTaskList(true)
+ *  3-1 생성한 작업리스트의 작업들에게 이벤트 등록 - 작업명, 완료버튼, 삭제버튼 클릭 이벤트
+ * 4. 작업명을 클릭 = taskName 클릭
+ * 5. start 버튼 클릭
+ * 6. 타이머 실행.
+ * 
+ * 작동 순서 - 옵션
+ * 
+ * 작동 순서 - 로그인
  */
 
 const RED = "var(--pomodoro-background)";
@@ -130,7 +137,7 @@ function init() {
 
     // 작업 관련 함수들
     getNonLoginTasks();
-    showTaskList();
+    showTaskList(true);
 
     // 로그인 관련 함수들
     createEmptyUsers();
@@ -159,7 +166,7 @@ function getNonLoginTasks() {
 
     let nonLoginTasks = JSON.parse(localStorage.getItem('non-login-tasks'));
 
-    if(nonLoginTasks !== null) tasks = JSON.parse(localStorage.getItem('non-login-tasks'));
+    if(nonLoginTasks !== null) tasks = nonLoginTasks;
 }
 
 /** 초기화 단계에서 localStorage에 'key'가 없다면 생성한다. */
@@ -535,13 +542,12 @@ function removeCompletedTaskList() {
 function showTaskList(isTrue) {
     console.log("작업리스트 보여주는 함수 실행");
 
-    if(tasks.length === 0) return; //show 할 작업이 없으면 바로 return해버리기
-
     isTrue ? taskListBox.classList.remove('hidden') : taskListBox.classList.add('hidden');
 
     if (tasks.findIndex(task => task.complete === false) === -1) {
         taskListBox.classList.add('hidden');
     }
+    
     // 이전에 있던 taskList들을 삭제
     while (taskListContainer.hasChildNodes()) {
         taskListContainer.removeChild(taskListContainer.firstChild);
