@@ -314,8 +314,9 @@ main {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
-  height: 110px;
+  height: 80px;
   margin-top: 10px;
 }
 
@@ -330,7 +331,7 @@ main {
   position: absolute;
   font-size: 12px;
   top: 4px;
-  margin-left: 2px;
+  margin-left: 5px;
 }
 
 .alram:hover > i{

@@ -1,6 +1,11 @@
 'use strict'
 
 /**
+ * todo 알람세팅에서 input[select]를 체크했을때 css 꾸미기
+ * todo 알람 클릭시 그 알람이 적용되게
+ */
+
+/**
  * 작동 순서 - 타이머
  * 1. init()
  * 2. 타이머 시간 설정 = createOptionItem() -> optionLists Click이벤트
@@ -70,19 +75,23 @@ const modalBackground = document.querySelector('.modal-background');
 //modal - setting
 const settingContainer = document.querySelector('.setting-container');
 const settingContainerCloseBtn = settingContainer.querySelector('.close>i');
-//modal - setting - select box 
+//modal - setting - select box (Pomodoro Time, Break Time)
 const selectContainer = document.querySelectorAll('.select-container');
 const selects = document.querySelectorAll('.select');
 const selected = document.querySelectorAll('.selected');
 const optionLists = document.querySelectorAll('.option-list');
+//modal - setting - alram-container
+const alrams = document.querySelectorAll('.alram');
+const alramPlayBtns = document.querySelectorAll('.alram i');
+const alramRadioBtns = document.querySelectorAll('.alram input[type=radio]');
 //modal - login
 const loginContainer = document.querySelector('.login-container');
-const loginContainerCloseBtn = loginContainer.querySelector('.close>i')
+const loginContainerCloseBtn = loginContainer.querySelector('.close>i');
 const inputId = loginContainer.querySelector('#input-id');
 const inputPwd = loginContainer.querySelector('#input-pwd');
 const loginBtn = loginContainer.querySelector('#login-button');
 
-let audio = new Audio('assets/audio/alarm1.mp3');
+
 let run = false;
 // let min = INITIAL_POMODORO_TIME;
 let min = TEST_MIN;
@@ -101,6 +110,12 @@ let optionTime = {
     breakTime: INITIAL_BREAK_TIME
 }
 let breakTimeState = false;
+
+// 라디오버튼을 눌러서 알람을 설정한다. -> 알람이 세팅되고 이걸 플레이
+// 타이머가 완료되면 알람을 실행한다.
+// 플레이버튼을 눌러서 알람을 실행한다. 
+let alram;
+let sampleAlram;
 
 let sumCompletedTaskTimes = 0;
 
@@ -139,9 +154,14 @@ function init() {
     getNonLoginTasks();
     showTaskList(true);
 
+    // 알람 관련 함수들
+    getNonLoginAlram();
+
     // 로그인 관련 함수들
     createEmptyUsers();
     createLoginState();
+
+    
 
     let i = tasks.findIndex(task => task.key === localStorage.getItem('currentKey'));
     if (i === -1) localStorage.removeItem('currentKey');
@@ -158,6 +178,74 @@ function init() {
         showStats();
         console.log(user);
     }
+}
+
+/**
+ * 초기화 단계에서 실행되는 함수
+ * 
+ */
+function getNonLoginAlram() {
+    let localStorageAlram = localStorage.getItem('non-login-alram');
+    if(localStorageAlram === null) setNonLoginAlram();
+    let index;
+
+    switch (localStorageAlram) {
+        case 'tableClock.mp3' :
+        case null : index = 0; break;
+        case 'alramClock.mp3' : index = 1; break;
+        case 'bbibbi.mp3' : index = 2; break;
+        case 'bbibi.mp3' : index = 3; break;
+        case 'school.mp3' : index = 4; break;
+        case 'bbibitong.mp3' : index = 5; break;
+    }
+
+    alramRadioBtns[index].checked = true;
+
+}
+
+/**
+ * 알람세팅에서 알람을 설정하면 localstorage에 저장하는 함수
+ * @param {*} datasetAlram 설정한 알람의 data-alram
+ */
+function setNonLoginAlram(datasetAlram) {
+    if(localStorage.getItem('non-login-alram') === null) {
+        localStorage.setItem('non-login-alram', `tableClock.mp3`); 
+        return;
+    }
+
+    localStorage.setItem('non-login-alram', datasetAlram); 
+}
+
+alramRadioBtns.forEach(alram => {
+    alram.addEventListener('click', (e) => {
+        let datasetAlram = e.target.parentNode.dataset.alram;
+        alram = new Audio(`assets/audio/${datasetAlram}`);
+
+        setNonLoginAlram(datasetAlram);
+    });
+});
+
+/**
+ * 알람 설정에서 play버튼을 누를때 실행된다.
+ * 그 알람을 play한다.
+ */
+alramPlayBtns.forEach(alram => {
+    alram.addEventListener('click', (e) => {
+        let targetAlram = e.target.parentNode.dataset.alram;
+
+        if(sampleAlram !== undefined) sampleAlram.pause();
+
+        sampleAlram = new Audio(`assets/audio/${targetAlram}`);
+        
+        alramPlayer(sampleAlram);
+    });
+});
+
+/**
+ * 알람을 재생하는 함수
+ */
+function alramPlayer(alram) {
+    alram.play();
 }
 
 /** 로컬스토리지로부터 'non-login-tasks'(비로그인 유저의 task) 를 tasks에 저장한다. */
@@ -391,7 +479,7 @@ function completePomodoro(currentTaskKey) {
     // 유저 정보 업데이트
     if (getLoginState()) updateUser();
 
-    audio.play();
+    alramPlayer(alram);
     run = false;
     clearInterval(timeInterval);
     timerStartBtn.innerText = "START";
@@ -700,8 +788,6 @@ timerStartBtn.addEventListener('mouseleave', () => {
 // 타이머 시작, 종료
 timerStartBtn.addEventListener('click', e => {
     console.log("타이머 시작버튼 클릭 이벤트");
-    console.log((-3 / 60));
-    console.log((-1 % 60));
     if (localStorage.getItem('currentKey') !== null) { // 현재 task가 선택된 상태라면 타이머를 실행
         let startTime = Date.now();
         
