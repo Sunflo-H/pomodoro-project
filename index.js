@@ -1,8 +1,8 @@
 'use strict'
 
 /**
- * todo 알람세팅에서 input[select]를 체크했을때 css 꾸미기
- * todo 알람 클릭시 그 알람이 적용되게
+ * todo 완료한 작업은 name에 밑줄 슥슥 css , 완료한 작업 적용하기
+ * todo 차트 적용
  */
 
 /**
@@ -21,6 +21,9 @@
  * 6. 타이머 실행.
  * 
  * 작동 순서 - 옵션
+ * 1. setting 버튼으로 옵션을 연다
+ * 2. Pomodoro Time, Break Time 설정
+ *  2-1 
  * 
  * 작동 순서 - 로그인
  */
@@ -67,9 +70,6 @@ const settingBtn = document.querySelector('#setting');
 const login_div = document.querySelector('#login');
 const reportBtn = document.querySelector('#report');
 const userBtn = document.querySelector('#user');
-//completed task
-const showCompletedTaskBtn = document.querySelector('.show-completed-task-btn');
-const completedTaskListContainer = document.querySelector('.completed-task-container > ul');
 //modal
 const modalBackground = document.querySelector('.modal-background');
 //modal - setting
@@ -592,31 +592,6 @@ function createOptionItem() {
     })
 }
 
-/**
- * 
- * @returns 
- */
-function showCompletedTaskList() {
-    if (!completedTaskListContainer.hasChildNodes) return;
-    removeCompletedTaskList();
-    completedTaskListContainer.classList.toggle('hidden');
-    tasks.forEach(task => {
-        if (!task.complete) return;
-        let html = `<li>
-                        <div class="flex-container">
-                            <i class="fas fa-check-circle"></i>
-                            <span class="task-name" data-time=${task.time} data-key=${task.key}>${task.name}</span>
-                        </div>
-                        <div>
-                            <span class="run-times">${task.runTime.current}/${task.runTime.max}</span>
-                            <button><i class="fa fa-trash"></i></button>
-                        </div>
-                    </li>`
-
-        completedTaskListContainer.insertAdjacentHTML('beforeend', html);
-    })
-}
-
 function removeCompletedTaskList() {
     while (completedTaskListContainer.hasChildNodes()) {
         completedTaskListContainer.removeChild(completedTaskListContainer.firstChild);
@@ -679,7 +654,7 @@ function showTaskList(isTrue) {
             } else {
                 selectTask(_key);
             }
-        })
+        });
     });
 
     completeTaskBtn.forEach(btn => {
@@ -689,6 +664,7 @@ function showTaskList(isTrue) {
     delBtn.forEach(btn => {
         btn.addEventListener('click', delBtnHandler)
     });
+
     // CSS
     breakTimeState ?
         li.forEach(li => li.style.color = BLUE) : li.forEach(li => li.style.color = RED);
@@ -730,21 +706,34 @@ function setCompletedTask() {
 
 function completeTaskBtnHandler(e) {
     console.log("작업 완료 버튼 눌렀을때 처리하는 함수 실행");
-    let _key = e.target.nextElementSibling.getAttribute('data-key');
-    tasks.find(task => task.key === _key).complete = true;
+    let completeBtn = e.target;
+    let taskName = e.target.nextElementSibling;
+    let key = taskName.getAttribute('data-key');
+    let targetTask = tasks.find(task => task.key === key); 
+    
+    // 완료 작업
+    completeBtn.classList.toggle('task-complete-btn'); // 완료 버튼 색 변경
+    taskName.classList.toggle('task-complete-text'); // 작업명에 가로줄, 색변경
+    
+    if(!targetTask.complete) { // 해당 작업의 complete 상태 변경
+        console.log(1);
+        targetTask.complete = true;
+        // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
+        setEstimatedTime();
+        // 완료할 작업 줄어들어
+        setTaskToComplete("minus");
+        // 완료한 작업 올라가
+        setCompletedTask();
+        
+    }
+    else {
+        console.log(2);
+        targetTask.complete = false;
+    }    
 
-    // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
-    setEstimatedTime();
-    // 완료할 작업 줄어들어
-    setTaskToComplete("minus");
-    // 완료한 작업 올라가
-    setCompletedTask();
+    
 
     showStats();
-
-    let completeAll = tasks.findIndex(task => task.complete === false);
-    if (completeAll === -1) showTaskList(false)
-    else showTaskList(true);
 
 }
 

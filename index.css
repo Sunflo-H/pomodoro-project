@@ -47,6 +47,15 @@ body::-webkit-scrollbar {
   user-select: none;
 }
 
+.task-complete-text {
+  text-decoration: line-through;
+  color: var(--black1A);
+}
+
+.task-complete-btn {
+  color: var(--pomodoro-background) !important;
+}
+
 /* wrapper */
 .wrapper {
   max-width: 40%;
@@ -135,7 +144,7 @@ main {
   margin-right: 3px;
   cursor: pointer;
 }
-.task-container > .flex-container > i:first-child {
+.task-container > .flex-container > i#btn-add-task {
   color: var(--pomodoro-background);
 }
 .task-container > .flex-container > i:last-child {
@@ -184,20 +193,20 @@ main {
   top: -65%;
 }
 /* task list */
-.task-container > div > span {
+.task-container > .task-list-box > span {
   display: block;
   margin-top: 10px;
   font-weight: bold;
   border-bottom: 3px solid #eee;
   padding-bottom: 5px;
 }
-.task-container > div > ul,
+.task-container > .task-list-box > ul,
 .completed-task-container > ul {
   width: 100%;
   list-style: none;
 }
 
-.task-container > div > ul > li ,
+.task-container > .task-list-box > ul > li ,
 .completed-task-container > ul > li{
   display: flex;
   justify-content: space-between;
@@ -206,21 +215,22 @@ main {
   background-color: #eee;
   border-radius: 5px;
   padding: 5px;
-  color: var(--pomodoro-background);
+  /* color: var(--pomodoro-background); */
   font-weight: bold;
 }
-.task-container > div > ul > li > .flex-container,
+.task-container > .task-list-box > ul > li > .flex-container,
 .completed-task-container > ul > li > .flex-container{
   flex: 1;
   align-items: center;
 }
-.task-container > div > ul > li > .flex-container > i,
+.task-container > .task-list-box > ul > li > .flex-container > .fa-check-circle,
 .completed-task-container > ul > li > .flex-container > i{
   cursor: pointer;
   font-size: 16px;
   margin-right: 5px;
+  color: var(--black1A);
 }
-.task-container > div > ul > li > .flex-container > .task-name,
+.task-container > .task-list-box > ul > li > .flex-container > .task-name,
 .completed-task-container > ul > li > .flex-container > .task-name{
   display: -webkit-box;
   flex: 1;
