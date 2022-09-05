@@ -1,7 +1,12 @@
 'use strict'
 
 /**
- * todo 완료한 작업은 name에 밑줄 슥슥 css , 완료한 작업 적용하기
+ * *todo 완료한 작업은 name에 밑줄 슥슥 css 
+ * *todo 완료한 작업 nonLoginTask 적용
+ * *todo nonLoginTask의 작업 삭제 적용
+ * *todo 완료한 작업 통계 적용하기 ()
+ * *todo 통계에도 nonLoginTask 적용
+ * *todo 새로고침시 nonLoginTask의 통계 불러오기
  * todo 차트 적용
  */
 
@@ -93,8 +98,8 @@ const loginBtn = loginContainer.querySelector('#login-button');
 
 
 let run = false;
-// let min = INITIAL_POMODORO_TIME;
-let min = TEST_MIN;
+let min = INITIAL_POMODORO_TIME;
+// let min = TEST_MIN;
 let sec = INITIAL_SEC;
 
 /** 타이머를 초로 변경한 값, 작업을 선택할때 저장된다. (해당 작업의 타이머 * 60) */
@@ -105,8 +110,8 @@ let timeInterval;
 let tempStartTime = 0;
 
 let optionTime = {
-    // pomodoro: INITIAL_POMODORO_TIME,
-    pomodoro: TEST_MIN,
+    pomodoro: INITIAL_POMODORO_TIME,
+    // pomodoro: TEST_MIN,
     breakTime: INITIAL_BREAK_TIME
 }
 let breakTimeState = false;
@@ -157,6 +162,9 @@ function init() {
     // 알람 관련 함수들
     getNonLoginAlram();
 
+    // 통계 관련 함수들
+    getNonLoginStats();
+
     // 로그인 관련 함수들
     createEmptyUsers();
     createLoginState();
@@ -181,8 +189,23 @@ function init() {
 }
 
 /**
- * 초기화 단계에서 실행되는 함수
- * 
+ * localStorage로부터 통계 정보를 가져오는 함수
+ */
+function getNonLoginStats() {
+    let localStats = JSON.parse(localStorage.getItem('non-login-stats'));
+    if(localStats === null) setNonLoginStats(); 
+}
+
+/**
+ * localStorage에 통계 정보를 저장하는 함수
+ */
+function setNonLoginStats() {
+    localStorage.setItem('non-login-stats', JSON.stringify(stats));
+}
+
+
+/**
+ * localStorage로부터 알람 정보를 가져오는 함수
  */
 function getNonLoginAlram() {
     let localStorageAlram = localStorage.getItem('non-login-alram');
@@ -204,7 +227,7 @@ function getNonLoginAlram() {
 }
 
 /**
- * 알람세팅에서 알람을 설정하면 localstorage에 저장하는 함수
+ * 알람세팅에서 알람을 설정하면 localStorage에 저장하는 함수
  * @param {*} datasetAlram 설정한 알람의 data-alram
  */
 function setNonLoginAlram(datasetAlram) {
@@ -226,8 +249,7 @@ alramRadioBtns.forEach(alram => {
 });
 
 /**
- * 알람 설정에서 play버튼을 누를때 실행된다.
- * 그 알람을 play한다.
+ * 알람 설정에서 play버튼을 누를때 실행되는 이벤트리스너
  */
 alramPlayBtns.forEach(alram => {
     alram.addEventListener('click', (e) => {
@@ -250,18 +272,19 @@ function alramPlayer(alram) {
 
 /** 로컬스토리지로부터 'non-login-tasks'(비로그인 유저의 task) 를 tasks에 저장한다. */
 function getNonLoginTasks() {
-    console.log("로컬스토리지로부터 비로그인 유저의 task 정보를 불러옵니다.");
-
     let nonLoginTasks = JSON.parse(localStorage.getItem('non-login-tasks'));
 
     if(nonLoginTasks !== null) tasks = nonLoginTasks;
 }
 
+/** 로컬스토리지에 'non-login-tasks'(비로그인 유저의 task)로 tasks를 저장한다. */
+function setNonLoginTasks() {
+    localStorage.setItem('non-login-tasks', JSON.stringify(tasks));
+}
+
 /** 초기화 단계에서 localStorage에 'key'가 없다면 생성한다. */
 function createKey() {
-    if (localStorage.getItem('key') === null) {
-        localStorage.setItem('key', 0);
-    }
+    if (localStorage.getItem('key') === null) localStorage.setItem('key', 0);
 }
 
 function createEmptyUsers() {
@@ -290,10 +313,12 @@ function showSelectedOptionTime(i, time) {
     selected[i].innerText = `${time}분`;
 }
 
-function delBtnHandler(e) {
-    let _key = e.currentTarget.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
-    let newTasks = tasks.filter(task => task.key !== _key);
+function removeTask(e) {
+    let key = e.currentTarget.parentNode.previousElementSibling.lastElementChild.getAttribute('data-key');
+    let newTasks = tasks.filter( task => task.key !== key );
     tasks = [...newTasks];
+
+    setNonLoginTasks();
 
     setEstimatedTime();
     setTaskToComplete("minus");
@@ -386,23 +411,25 @@ function logout() {
 
 function showStats(order) {
     console.log("통계 보여주는 함수 실행");
-    console.log(stats);
-    // console.log(user.stats);
+
     if (order === "reset") {
         stats.estimatedTime = 0;
         stats.taskToComplete = 0;
         stats.completedTime = 0;
         stats.completedTask = 0;
     }
+
+    // ! 이 함수가 꼭 있어야 하나??? 확인해보자
+
     // 예정시간
-    estimatedTime.innerText = (stats.estimatedTime).toFixed(1); //소수점 문제때문에 한번더 반올림
+    estimatedTime.innerText = stats.estimatedTime;
     if (estimatedTime.innerText === "0.0") estimatedTime.innerText = 0;
 
     // 완료할 작업
     taskToComplete.innerText = stats.taskToComplete;
     
     // 완료한 시간
-    completedTime.innerText = Number(stats.completedTime).toFixed(1);
+    completedTime.innerText = stats.completedTime;
     if (completedTime.innerText === "0.0") completedTime.innerText = 0;
 
     // 완료한 작업
@@ -464,7 +491,6 @@ function timer(startTime) {
 
 function completePomodoro(currentTaskKey) {
     console.log("===포모도로 완료 함수 실행===");
-    console.log(currentTaskKey);
     tasks.find(task => task.key === currentTaskKey).runTime.current++;
     showTaskList(true);
 
@@ -472,7 +498,7 @@ function completePomodoro(currentTaskKey) {
     // 예정시간
     setEstimatedTime();
     // 완료한 시간
-    setCompletedTime(currentTaskKey);
+    setCompletedTime();
 
     showStats();
 
@@ -581,7 +607,7 @@ function setStopwatchCount(param) {
 function createOptionItem() {
     console.log("세팅메뉴 옵션리스트 생성하는 함수 실행");
     optionLists.forEach(optionList => {
-        let optionItemTime = 1;
+        let optionItemTime = 5;
         while (optionItemTime <= 60) {
             let optionItem = `<li class="option-item">
                                 ${optionItemTime}분
@@ -658,11 +684,11 @@ function showTaskList(isTrue) {
     });
 
     completeTaskBtn.forEach(btn => {
-        btn.addEventListener('click', completeTaskBtnHandler);
+        btn.addEventListener('click', completeTask);
     });
 
     delBtn.forEach(btn => {
-        btn.addEventListener('click', delBtnHandler)
+        btn.addEventListener('click', removeTask)
     });
 
     // CSS
@@ -674,37 +700,63 @@ function showTaskList(isTrue) {
 
 // 통계 업데이트 함수
 
-// 예정시간을 더하거나 
+/**
+ * 예정시간을 구하는 함수
+ */
 function setEstimatedTime() {
-    console.log(`예정시간 세팅 함수 실행`);
-
     let totalTaskTime = 0;
     tasks.forEach(task => {
-        if (task.complete === false) totalTaskTime += (task.time * (task.runTime.max - task.runTime.current));
-    })
+        if (task.complete === false) {
+            totalTaskTime += (task.time * (task.runTime.max - task.runTime.current));
+        }
+    });
 
     stats.estimatedTime = Number((totalTaskTime / HOUR).toFixed(1)); //소수점 한자리 반올림
+    setNonLoginStats();
 }
 
+/**
+ * 완료할 작업의 수를 증감하는 함수
+ * @param {*} order "plus", "minus"
+ */
 function setTaskToComplete(order) {
-    console.log("완료할 작업 세팅 함수 실행");
     if (order === "plus") stats.taskToComplete++;
     else if (order === "minus") stats.taskToComplete--;
+
+    setNonLoginStats();
 }
 
-function setCompletedTime(key) {
-    console.log("완료한 시간 세팅 함수 실행");
-    let task = tasks.find(task => task.key === key);
-    sumCompletedTaskTimes += task.time;
-    stats.completedTime = Number((sumCompletedTaskTimes / HOUR).toFixed(1));
+/**
+ * 완료한 시간을 구하는 함수
+ */
+function setCompletedTime() {
+    let sumTime = 0;
+    
+    tasks.forEach(task => sumTime += task.time * task.runTime.current);
+    
+    stats.completedTime = (sumTime / HOUR).toFixed(1);
+
+    setNonLoginStats();
 }
 
-function setCompletedTask() {
-    console.log("완료한 작업 세팅 함수 실행");
-    stats.completedTask++;
+/**
+ * 완료한 작업을 증감하는 함수
+ * @param {*} order "plus", "minus"
+ */
+function setCompletedTask(order) {
+    if(order === "plus") stats.completedTask++;
+    else if (order === "minus") stats.completedTask--;
+
+    setNonLoginStats();
 }
 
-function completeTaskBtnHandler(e) {
+/**
+ * completeTaskBtn 을 눌렀을때 처리하는 함수
+ * 해당 작업의 complete를 true로 바꾸고, css 작업을 한다.
+ * 통계도 업데이트 해준다.
+ * @param {*} e 
+ */
+function completeTask(e) {
     console.log("작업 완료 버튼 눌렀을때 처리하는 함수 실행");
     let completeBtn = e.target;
     let taskName = e.target.nextElementSibling;
@@ -715,25 +767,23 @@ function completeTaskBtnHandler(e) {
     completeBtn.classList.toggle('task-complete-btn'); // 완료 버튼 색 변경
     taskName.classList.toggle('task-complete-text'); // 작업명에 가로줄, 색변경
     
-    if(!targetTask.complete) { // 해당 작업의 complete 상태 변경
-        console.log(1);
+    if(!targetTask.complete) { // 완료를 누를때
         targetTask.complete = true;
-        // 예정 시간 = 현재 작업이 모든 runtime을 하지 않았다면 미완료runtime만큼 감소
-        setEstimatedTime();
-        // 완료할 작업 줄어들어
         setTaskToComplete("minus");
-        // 완료한 작업 올라가
-        setCompletedTask();
-        
+        setCompletedTask("plus"); 
+
+        // 완료한 시간은 타이머가 완료되었을때 증가하므로 여기서는 사용하지 않는다.
     }
-    else {
-        console.log(2);
+    else { // 완료를 해제할때
         targetTask.complete = false;
+        setTaskToComplete("plus"); 
+        setCompletedTask("minus");
     }    
 
+    setEstimatedTime(); 
+    setNonLoginTasks();
     
-
-    showStats();
+    showStats(); // 통계를 보여준다.
 
 }
 
@@ -799,10 +849,10 @@ timerStartBtn.addEventListener('click', e => {
 addTaskBtn.addEventListener('click', e => {
     console.log("새 작업 등록하는 이벤트");
     if (inputTask.value === "") {
-        alert('작업명을 설정해주세요')
+        alert('작업명을 설정해주세요');
         return;
     } else if (count.stopwatch === 0) {
-        alert('포모도로 횟수를 설정해주세요')
+        alert('포모도로 횟수를 설정해주세요');
         return;
     }
 
@@ -817,7 +867,7 @@ addTaskBtn.addEventListener('click', e => {
         key: getNewKey(localStorage.getItem('key'))
     })
 
-    localStorage.setItem('non-login-tasks', JSON.stringify(tasks));
+    setNonLoginTasks();
 
     // 예정시간 증가
     console.log("예정시간 증가합니다");
@@ -826,7 +876,6 @@ addTaskBtn.addEventListener('click', e => {
     // 완료할 작업 증가
     console.log("완료할 작업 증가합니다");
     setTaskToComplete("plus");
-
 
     console.log("작업리스트와 통계를 html로 보여주기");
     showStats();
@@ -1020,7 +1069,3 @@ loginBtn.addEventListener('click', e => login());
 // userBtn.addEventListener('click', e => loginAndLogout(false));
 userBtn.addEventListener('click', e => logout());
 
-// 완료한 작업 보기 클릭
-showCompletedTaskBtn.addEventListener('click', e => {
-    showCompletedTaskList();
-});
