@@ -1,5 +1,5 @@
 'use strict'
-//테스트 브랜치
+// test
 
 /**
  * *todo 완료한 작업은 name에 밑줄 슥슥 css 
