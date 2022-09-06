@@ -224,6 +224,7 @@ function getNonLoginAlram() {
 
     alramRadioBtns[index].checked = true;
 
+    
 }
 
 /**
