@@ -1,5 +1,10 @@
 'use strict'
-// test
+function add_test (x, y){
+	console.log(x);
+	console.log(y);
+	console.log(x + y);
+	return x + y;
+}
 
 /**
  * *todo 완료한 작업은 name에 밑줄 슥슥 css 
