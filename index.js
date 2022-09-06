@@ -1,5 +1,6 @@
 'use strict'
-function add_test (x, y){
+
+function add_merge (x, y){
 	console.log(x);
 	console.log(y);
 	console.log(x + y);
